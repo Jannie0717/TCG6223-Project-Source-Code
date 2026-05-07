@@ -38,6 +38,12 @@ private:
 
 public:
     Kinger();
+    GLuint headTextureID;
+    GLuint headPieceTextureID;
+    GLuint clothTextureID;
+    GLuint rightHandwGunTextureID;
+    GLuint leftEyeTextureID;
+    GLuint rightEyeTextureID;
 
     bool loadHead(const std::string& filePath);
     bool loadHeadPiece(const std::string& filePath);
@@ -62,6 +68,8 @@ public:
     void drawBucket() const;
     void drawBucketHandle() const;
     void draw() const;
+
+
 };
 
 } // namespace ProjectKinger

@@ -129,6 +129,12 @@ void ObjModel::draw() const
 
             // Texture coordinates already parsed.
             // Add glTexCoord2f(...) later when texture image is implemented.
+            // ADD THIS BLOCK for texture coordinates
+            if (idx[k].vt >= 0 && idx[k].vt < (int)texCoords.size())
+            {
+                const Vec2& t = texCoords[idx[k].vt];
+                glTexCoord2f(t.u, t.v);
+            }
 
             if (idx[k].v >= 0 && idx[k].v < (int)vertices.size())
             {

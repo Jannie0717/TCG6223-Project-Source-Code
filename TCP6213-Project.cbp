@@ -40,6 +40,8 @@
 		<Unit filename="Kinger.hpp" />
 		<Unit filename="ObjModel.cpp" />
 		<Unit filename="ObjModel.hpp" />
+		<Unit filename="TextureLoader.cpp" />
+		<Unit filename="TextureLoader.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

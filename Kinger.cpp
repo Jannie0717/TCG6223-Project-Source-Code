@@ -4,6 +4,8 @@
 
 using namespace ProjectKinger;
 
+GLuint headTextureID;
+
 Kinger::Kinger()
 {
     headLoaded = false;
@@ -84,11 +86,15 @@ void Kinger::drawHead() const
 {
     if (!headLoaded)
         return;
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, headTextureID);
 
     glPushMatrix();
     glTranslatef(0.0f, 15.0f, 0.0f);
     glScalef(1.6f, 2.6f, 0.9f);
-    glColor3ub(254, 226, 205);
+
+    glColor3f(1.0f, 1.0f, 1.0f);      // White allows texture to show fully
+    //glColor3ub(254, 226, 205);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
@@ -97,17 +103,21 @@ void Kinger::drawHead() const
     glEnable(GL_CULL_FACE);
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);          // Disable texturing for other parts
 }
 
 void Kinger::drawHeadPiece() const
 {
     if (!headPieceLoaded)
         return;
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, headPieceTextureID);
 
     glPushMatrix();
     glTranslatef(0.0f, 14.5f, 0.0f);
     glScalef(1.2f, 2.0f, 0.7f);
-    glColor3ub(254, 226, 205);
+    //glColor3ub(254, 226, 205);
+    glColor3f(1.0f, 1.0f, 1.0f);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
@@ -116,12 +126,16 @@ void Kinger::drawHeadPiece() const
     glEnable(GL_CULL_FACE);
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Kinger::drawLeftEye() const
 {
     if (!leftEyeLoaded)
         return;
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, leftEyeTextureID);
 
     glPushMatrix();
     glTranslatef(2.0f, 4.0f, 4.0f);
@@ -137,6 +151,7 @@ void Kinger::drawLeftEye() const
     glEnable(GL_CULL_FACE);
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Kinger::drawRightEye() const
@@ -144,11 +159,14 @@ void Kinger::drawRightEye() const
     if (!rightEyeLoaded)
         return;
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, rightEyeTextureID);
+
     glPushMatrix();
-    glTranslatef(-2.0f, 7.0f, 5.0f);
-    glScalef(2.5f, 2.5f, 2.5f);
-    glRotatef(270,0,0,1);
-    glRotatef(90,1,0,0);
+    glRotatef(180,1,0,0);
+    glTranslatef(-7.0f, -32.0f, 2.0f);
+    glScalef(7.5f, 7.5f, 7.5f);
+
     glColor3ub(255, 255, 255);
 
     glDisable(GL_CULL_FACE);
@@ -158,6 +176,7 @@ void Kinger::drawRightEye() const
     glEnable(GL_CULL_FACE);
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Kinger::drawBody() const
@@ -184,10 +203,14 @@ void Kinger::drawCloth() const
     if (!clothLoaded)
         return;
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, clothTextureID);
+
     glPushMatrix();
-    glTranslatef(0.0f, -6.5f, 0.0f);
-    glScalef(6.5f, 9.0f, 7.0f);
-    glColor3ub(128, 0, 128);
+    glTranslatef(0.0f, -18.0f, 0.0f);
+    glScalef(7.5f, 8.0f, 7.0f);
+    //glColor3ub(128, 0, 128);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glRotatef(180,0,1,0);
 
     glDisable(GL_CULL_FACE);
@@ -197,6 +220,7 @@ void Kinger::drawCloth() const
     glEnable(GL_CULL_FACE);
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Kinger::drawLeftHand() const
@@ -223,8 +247,11 @@ void Kinger::drawLeftHand() const
 
 void Kinger::drawRightHandwGun() const
 {
-    if (!bodyLoaded)
+    if (!rightHandwGunLoaded)
         return;
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, rightHandwGunTextureID);
 
     glPushMatrix();
     glRotatef(180,1,0,0);
@@ -240,6 +267,7 @@ void Kinger::drawRightHandwGun() const
     glEnable(GL_CULL_FACE);
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Kinger::drawBucket() const
@@ -286,6 +314,7 @@ void Kinger::drawBucketHandle() const
 
 void Kinger::draw() const
 {
+
     drawHead();
     drawHeadPiece();
     drawLeftEye();

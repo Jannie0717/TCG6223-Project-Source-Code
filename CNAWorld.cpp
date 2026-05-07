@@ -16,6 +16,7 @@
 #include <GL/glut.h>
 #include <iostream>
 #include "CNAWorld.hpp"
+#include "TextureLoader.hpp"
 
 using namespace ProjectWorld;
 
@@ -101,6 +102,30 @@ void MyVirtualWorld::init()
     {
         std::cerr << "Kinger cloth failed to load.\n";
     }
+
+    //Texture
+    kinger.headTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/WoodTexture.jpg"
+    );
+
+    kinger.headPieceTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/WoodTexture.jpg"
+    );
+    kinger.clothTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/Kinger_Gown.png"
+    );
+
+    kinger.rightHandwGunTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/RightHandwGun.png"
+    );
+
+    kinger.leftEyeTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/LeftEye.png"
+    );
+
+    kinger.rightEyeTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/RightEye.png"
+    );
 
     // Later:
     // labubu.loadHead(...);
