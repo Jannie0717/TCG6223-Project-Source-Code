@@ -11,7 +11,7 @@ Kinger::Kinger()
     headLoaded = false;
     headPieceLoaded = false;
     leftEyeLoaded = false;
-    rightEyeLoaded = false;
+    rightEyeNLoaded = false;
     bodyLoaded = false;
     clothLoaded = false;
     leftHandLoaded = false;
@@ -38,10 +38,10 @@ bool Kinger::loadLeftEye(const std::string& filePath)
     return leftEyeLoaded;
 }
 
-bool Kinger::loadRightEye(const std::string& filePath)
+bool Kinger::loadRightEyeN(const std::string& filePath)
 {
-    rightEyeLoaded = rightEyeModel.loadFromObjText(filePath);
-    return rightEyeLoaded;
+    rightEyeNLoaded = rightEyeNModel.loadFromObjText(filePath);
+    return rightEyeNLoaded;
 }
 
 bool Kinger::loadBody(const std::string& filePath)
@@ -154,13 +154,13 @@ void Kinger::drawLeftEye() const
     glDisable(GL_TEXTURE_2D);
 }
 
-void Kinger::drawRightEye() const
+void Kinger::drawRightEyeN() const
 {
-    if (!rightEyeLoaded)
+    if (!rightEyeNLoaded)
         return;
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, rightEyeTextureID);
+    glBindTexture(GL_TEXTURE_2D, rightEyeNTextureID);
 
     glPushMatrix();
     glRotatef(180,1,0,0);
@@ -171,7 +171,7 @@ void Kinger::drawRightEye() const
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
-    rightEyeModel.draw();
+    rightEyeNModel.draw();
     glDisable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
 
@@ -318,7 +318,7 @@ void Kinger::draw() const
     drawHead();
     drawHeadPiece();
     drawLeftEye();
-    drawRightEye();
+    drawRightEyeN();
     drawBody();
     drawCloth();
 

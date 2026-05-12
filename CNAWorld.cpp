@@ -31,8 +31,8 @@ void MyVirtualWorld::init()
     const std::string leftEyePath =
         "Model\\Kinger\\kinger_LeftEye.txt";
 
-    const std::string rightEyePath =
-        "Model\\Kinger\\kinger_RightEye.txt";
+    const std::string rightEyeNPath =
+        "Model\\Kinger\\kinger_RightEyeN.txt";
 
     const std::string bodyPath =
         "Model\\Kinger\\kinger_Body.txt";
@@ -68,7 +68,7 @@ void MyVirtualWorld::init()
         std::cerr << "Kinger left eye failed to load.\n";
     }
 
-    if (!kinger.loadRightEye(rightEyePath))
+    if (!kinger.loadRightEyeN(rightEyeNPath))
     {
         std::cerr << "Kinger right eye failed to load.\n";
     }
@@ -123,8 +123,8 @@ void MyVirtualWorld::init()
     "Model/Kinger/LeftEye.png"
     );
 
-    kinger.rightEyeTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/RightEye.png"
+    kinger.rightEyeNTextureID = TextureLoader::loadTexture(
+    "Model/Kinger/RightEyeN.png"
     );
 
     // Later:

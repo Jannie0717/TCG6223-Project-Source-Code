@@ -13,7 +13,7 @@ private:
     ObjModel headModel;
     ObjModel headPieceModel;
     ObjModel leftEyeModel;
-    ObjModel rightEyeModel;
+    ObjModel rightEyeNModel;
     ObjModel bodyModel;
     ObjModel clothModel;
     ObjModel leftHandModel;
@@ -26,7 +26,7 @@ private:
     bool headLoaded;
     bool headPieceLoaded;
     bool leftEyeLoaded;
-    bool rightEyeLoaded;
+    bool rightEyeNLoaded;
     bool bodyLoaded;
     bool clothLoaded;
     bool leftHandLoaded;
@@ -43,12 +43,12 @@ public:
     GLuint clothTextureID;
     GLuint rightHandwGunTextureID;
     GLuint leftEyeTextureID;
-    GLuint rightEyeTextureID;
+    GLuint rightEyeNTextureID;
 
     bool loadHead(const std::string& filePath);
     bool loadHeadPiece(const std::string& filePath);
     bool loadLeftEye(const std::string& filePath);
-    bool loadRightEye(const std::string& filePath);
+    bool loadRightEyeN(const std::string& filePath);
     bool loadBody(const std::string& filePath);
     bool loadCloth(const std::string& filePath);
     bool loadLeftHand(const std::string& filePath);
@@ -60,7 +60,7 @@ public:
     void drawHead() const;
     void drawHeadPiece() const;
     void drawLeftEye() const;
-    void drawRightEye() const;
+    void drawRightEyeN() const;
     void drawBody() const;
     void drawCloth() const;
     void drawLeftHand() const;
