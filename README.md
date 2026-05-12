@@ -7,7 +7,10 @@ Made by ... ,Jaixen, ...
 - [Main fucntion]
 - [3D Virtual World projection]
 - [Model Loader]
-- [Character Models]
+- [Texture Loader]
+- [Character Models] - Kinger (Done & Loaded) & Caine (Done but not Loaded)
+- [Character Texture] - Kinger (Undone) & Caine (Currently Unavailable)
+- [stb_image.h] #dont remove this file
 
 ## READ THIS
 
