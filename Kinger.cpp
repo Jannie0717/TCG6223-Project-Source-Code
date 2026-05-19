@@ -138,10 +138,9 @@ void Kinger::drawLeftEye() const
     glBindTexture(GL_TEXTURE_2D, leftEyeTextureID);
 
     glPushMatrix();
-    glTranslatef(2.0f, 4.0f, 4.0f);
-    glScalef(2.0f, 2.0f, 2.0f);
-    glRotatef(270,0,0,1);
-    glRotatef(90,1,0,0);
+    glTranslatef(6.0f, 28.0f, 0.0f);
+    glScalef(8.0f, 8.0f, 8.0f);
+    glRotatef(180,1,0,0);
     glColor3ub(255, 255, 255);
 
     glDisable(GL_CULL_FACE);
@@ -315,16 +314,14 @@ void Kinger::drawBucketHandle() const
 void Kinger::draw() const
 {
 
-    drawHead();
-    drawHeadPiece();
-    drawLeftEye();
-    drawRightEyeN();
-    drawBody();
-    drawCloth();
-
-    //#Bugged (Fixing)
-    drawLeftHand();
-    drawRightHandwGun();
+    //drawHead();
+    //drawHeadPiece();
+    //drawLeftEye();
+    //drawRightEyeN();
+    //drawBody();
+    //drawCloth();
+    //drawLeftHand();
+    //drawRightHandwGun();
     drawBucket();
-    //drawBucketHandle();
+    drawBucketHandle();
 }

@@ -130,7 +130,7 @@
 	"CNAmain.hpp"
 	"Kinger.hpp"
 
-1778070059 c:\users\jamie\documents\github\tcg6223-project-source-code\kinger.hpp
+1778564441 c:\users\jamie\documents\github\tcg6223-project-source-code\kinger.hpp
 	"ObjModel.hpp"
 	<string>
 
@@ -138,7 +138,7 @@
 	<vector>
 	<string>
 
-1778070109 source:c:\users\jamie\documents\github\tcg6223-project-source-code\cnaworld.cpp
+1778564481 source:c:\users\jamie\documents\github\tcg6223-project-source-code\cnaworld.cpp
 	<GL/glut.h>
 	<iostream>
 	"CNAWorld.hpp"
@@ -148,12 +148,12 @@
 	<GL/glut.h>
 	<string>
 
-1778070704 source:c:\users\jamie\documents\github\tcg6223-project-source-code\kinger.cpp
+1779168978 source:c:\users\jamie\documents\github\tcg6223-project-source-code\kinger.cpp
 	<GL/glut.h>
 	<iostream>
 	"Kinger.hpp"
 
-1778046604 source:c:\users\jamie\documents\github\tcg6223-project-source-code\objmodel.cpp
+1778563762 source:c:\users\jamie\documents\github\tcg6223-project-source-code\objmodel.cpp
 	<GL/glut.h>
 	<fstream>
 	<sstream>
