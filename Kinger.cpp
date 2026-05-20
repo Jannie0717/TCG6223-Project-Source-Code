@@ -298,9 +298,12 @@ void Kinger::drawBucketHandle() const
         return;
 
     glPushMatrix();
-    //glTranslatef(0.0f, 7.90f, 0.0f);
-    glScalef(3.0f, 3.0f, 3.0f);
-    glColor3ub(254, 226, 205);
+    glTranslatef(0.0f, 5.0f, 2.0f);
+    glRotatef(90, 0, 1, 0);
+    glRotatef(90, 0, 0, 1);
+    glRotatef(-45, 0, 0, 1);
+    glScalef(8.5f, 8.5f, 8.5f);
+    //glColor3ub(254, 226, 205);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
@@ -314,14 +317,14 @@ void Kinger::drawBucketHandle() const
 void Kinger::draw() const
 {
 
-    //drawHead();
-    //drawHeadPiece();
-    //drawLeftEye();
-    //drawRightEyeN();
-    //drawBody();
-    //drawCloth();
-    //drawLeftHand();
-    //drawRightHandwGun();
+    drawHead();
+    drawHeadPiece();
+    drawLeftEye();
+    drawRightEyeN();
+    drawBody();
+    drawCloth();
+    drawLeftHand();
+    drawRightHandwGun();
     drawBucket();
     drawBucketHandle();
 }

@@ -36,6 +36,10 @@
 		<Unit filename="CNAWorld.hpp" />
 		<Unit filename="CNAmain.cpp" />
 		<Unit filename="CNAmain.hpp" />
+		<Unit filename="Caine.cpp" />
+		<Unit filename="Caine.hpp" />
+		<Unit filename="Gloinks.cpp" />
+		<Unit filename="Gloinks.hpp" />
 		<Unit filename="Kinger.cpp" />
 		<Unit filename="Kinger.hpp" />
 		<Unit filename="ObjModel.cpp" />
