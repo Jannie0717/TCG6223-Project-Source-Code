@@ -38,6 +38,8 @@
 		<Unit filename="CNAmain.hpp" />
 		<Unit filename="Caine.cpp" />
 		<Unit filename="Caine.hpp" />
+		<Unit filename="Environment.cpp" />
+		<Unit filename="Environment.hpp" />
 		<Unit filename="Gloinks.cpp" />
 		<Unit filename="Gloinks.hpp" />
 		<Unit filename="Kinger.cpp" />
