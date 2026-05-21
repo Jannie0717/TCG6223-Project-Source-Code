@@ -19,6 +19,7 @@
 
 #include "CNAmain.hpp"
 #include "Kinger.hpp"
+#include "Environment.hpp"
 
 // Later you can add:
 // #include "Labubu.hpp"
@@ -31,6 +32,7 @@ class MyVirtualWorld
 {
 public:
     ProjectKinger::Kinger kinger;
+    ProjectEnvironment::Environment environment;
 
     // Later:
     // ProjectLabubu::Labubu labubu;

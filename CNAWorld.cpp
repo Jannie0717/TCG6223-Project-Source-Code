@@ -55,18 +55,27 @@ void MyVirtualWorld::init()
     const std::string bucketHandlePath =
         "Model\\Kinger\\kinger_BucketHandle.txt";
 
+
     //////////////////////////////////Gloinks//////////////////////////////////
 
-    const std::string gloinksBowlingPinPath =
-        "Model\\Gloinks\\gloinks_BowlingPin.txt";
+    //const std::string gloinksBowlingPinPath =
+        //"Model\\Gloinks\\gloinks_BowlingPin.txt";
 
-    const std::string gloinksBowlingPinPath =
-        "Model\\Gloinks\\gloinks_BowlingPin.txt";
+    //const std::string gloinksBowlingPinPath =
+        //"Model\\Gloinks\\gloinks_BowlingPin.txt";
 
 
     //////////////////////////////////Caine//////////////////////////////////
-    const std::string headPath =
-        "Model\\Kinger\\kinger_Head.txt";
+    //const std::string headPath =
+        //"Model\\Kinger\\kinger_Head.txt";
+
+
+    ////////////////////////////////Environment//////////////////////////////
+    const std::string skyBoxPath =
+        "Model\\Environment\\Square SkyBox.txt";
+
+    const std::string groundPath =
+        "Model\\Environment\\Ground.txt";
 
 
     //#//#//#//#//#//#//#//#//#//#Condition Checking#//#//#//#//#//#//#//#//#//
@@ -122,6 +131,19 @@ void MyVirtualWorld::init()
         std::cerr << "Kinger cloth failed to load.\n";
     }
 
+
+    ////////////////////////////////Environment//////////////////////////////
+    if (!environment.loadSkyBox(skyBoxPath))
+    {
+        std::cerr << "SkyBox failed to load.\n";
+    }
+
+    if (!environment.loadGround(groundPath))
+    {
+        std::cerr << "Ground failed to load.\n";
+    }
+
+
     //#//#//#//#//#//#//#//#//#//#//#Texture#//#//#//#//#//#//#//#//#//#//#//#
 
     //////////////////////////////////Kinger//////////////////////////////////
@@ -155,13 +177,10 @@ void MyVirtualWorld::init()
 
 void MyVirtualWorld::draw()
 {
-    // Later:
-    // battleEnvironment.draw();
+    environment.draw();  //Environment
 
     kinger.draw();
 
-    // Later:
-    // labubu.draw();
 }
 
 void MyVirtualWorld::tickTime()
