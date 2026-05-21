@@ -58,11 +58,23 @@ void MyVirtualWorld::init()
 
     //////////////////////////////////Gloinks//////////////////////////////////
 
-    //const std::string gloinksBowlingPinPath =
-        //"Model\\Gloinks\\gloinks_BowlingPin.txt";
+    const std::string gloinksBowlingPinPath =
+        "Model\\Gloinks\\gloinks_BowlingPin.txt";
 
-    //const std::string gloinksBowlingPinPath =
-        //"Model\\Gloinks\\gloinks_BowlingPin.txt";
+    const std::string gloinksCirclePath =
+        "Model\\Gloinks\\gloinks_Circle.txt";
+
+    const std::string gloinksCubePath =
+        "Model\\Gloinks\\gloinks_Cube.txt";
+
+    const std::string gloinksMoonPath =
+        "Model\\Gloinks\\gloinks_Moon.txt";
+
+    const std::string gloinksStarPath =
+        "Model\\Gloinks\\gloinks_Star.txt";
+
+    const std::string gloinksTriangularPath =
+        "Model\\Gloinks\\gloinks_Triangular.txt";
 
 
     //////////////////////////////////Caine//////////////////////////////////
@@ -131,6 +143,36 @@ void MyVirtualWorld::init()
         std::cerr << "Kinger cloth failed to load.\n";
     }
 
+    //////////////////////////////////Gloinks//////////////////////////////////
+    if (!gloinks.loadGloinksBowlingPin(gloinksBowlingPinPath))
+    {
+        std::cerr << "Gloinks Bowling Pin failed to load.\n";
+    }
+
+    if (!gloinks.loadGloinksCircle(gloinksCirclePath))
+    {
+        std::cerr << "Gloinks Circle failed to load.\n";
+    }
+
+    if (!gloinks.loadGloinksCube(gloinksCubePath))
+    {
+        std::cerr << "Gloinks Cube failed to load.\n";
+    }
+
+    if (!gloinks.loadGloinksMoon(gloinksMoonPath))
+    {
+        std::cerr << "Gloinks Moon failed to load.\n";
+    }
+
+    if (!gloinks.loadGloinksStar(gloinksStarPath))
+    {
+        std::cerr << "Gloinks Star failed to load.\n";
+    }
+
+    if (!gloinks.loadGloinksTriangular(gloinksTriangularPath))
+    {
+        std::cerr << "Gloinks Triangular failed to load.\n";
+    }
 
     ////////////////////////////////Environment//////////////////////////////
     if (!environment.loadSkyBox(skyBoxPath))
@@ -179,7 +221,9 @@ void MyVirtualWorld::draw()
 {
     environment.draw();  //Environment
 
-    kinger.draw();
+    //kinger.draw();
+
+    gloinks.draw();
 
 }
 

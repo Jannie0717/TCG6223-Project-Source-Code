@@ -100,14 +100,14 @@ bool ObjModel::loadFromObjText(const std::string& filePath)
 
     fin.close();
 
-/*
+
     std::cout << "Loaded model: " << filePath
               << "\nVertices: " << vertices.size()
               << "\nNormals : " << normals.size()
               << "\nTexCoords: " << texCoords.size()
               << "\nFaces    : " << faces.size()
               << std::endl;
-*/
+
     return !vertices.empty() && !faces.empty();
 }
 

@@ -19,6 +19,7 @@
 
 #include "CNAmain.hpp"
 #include "Kinger.hpp"
+#include "Gloinks.hpp"
 #include "Environment.hpp"
 
 // Later you can add:
@@ -32,6 +33,7 @@ class MyVirtualWorld
 {
 public:
     ProjectKinger::Kinger kinger;
+    ProjectGloinks::Gloinks gloinks;
     ProjectEnvironment::Environment environment;
 
     // Later:
