@@ -24,6 +24,7 @@ Environment::Environment()
     roofTexture = 0;
     castleWallTexture = 0;
     cube1Texture = 0;
+    cube2Texture = 0;
     cubeGroupedTexture = 0;
     circusObject1Texture = 0;
     circusObject2Texture = 0;
@@ -53,6 +54,10 @@ bool Environment::loadTextures()
     "Model\\Environment\\Textures\\Cube1.png"
     );
 
+    cube2Texture = TextureLoader::loadTexture(
+    "Model\\Environment\\Textures\\Cube2.png"
+    );
+
     cubeGroupedTexture = TextureLoader::loadTexture(
     "Model\\Environment\\Textures\\CubeGrouped.png"
     );
@@ -66,7 +71,7 @@ bool Environment::loadTextures()
     );
 
     pillarTexture = TextureLoader::loadTexture(
-    "Model\\Environment\\Textures\\Pillar.png"
+        "Model\\Environment\\Textures\\Pillar.png"
     );
 
     skyTexture = TextureLoader::loadTexture(
@@ -78,6 +83,7 @@ bool Environment::loadTextures()
            roofTexture != 0 &&
            castleWallTexture != 0 &&
            cube1Texture != 0 &&
+           cube2Texture != 0 &&
            cubeGroupedTexture != 0 &&
            circusObject1Texture != 0 &&
            circusObject2Texture != 0 &&
@@ -265,51 +271,40 @@ void Environment::drawCube() const
     if (!cubeLoaded)
         return;
 
+    glEnable(GL_TEXTURE_2D);
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
-
-    // =====================================================
-    // Test cube with Cube1.png texture
-    // =====================================================
-    glPushMatrix();
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, cube1Texture);
 
     // Use white so the texture color is not tinted
     glColor3ub(255, 255, 255);
 
+    // Cube left 1 - Cube1.png
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, cube1Texture);
     glTranslatef(-90.0f, -18.7f, 100.0f);
     glScalef(8.0f, 8.0f, 8.0f);
     cubeModel.draw();
-
-    glDisable(GL_TEXTURE_2D);
-
     glPopMatrix();
 
-
-    // Cube left (Mint Green)
+    // Cube left 2 - Cube2.png
     glPushMatrix();
-    glDisable(GL_TEXTURE_2D);
-    glColor3ub(168, 230, 207);
+    glBindTexture(GL_TEXTURE_2D, cube2Texture);
     glTranslatef(-180.0f, -18.7f, 40.0f);
     glScalef(15.0f, 15.0f, 15.0f);
     cubeModel.draw();
     glPopMatrix();
 
-    // Cube right (Light Blue)
+    // Cube right 1 - Cube2.png
     glPushMatrix();
-    glDisable(GL_TEXTURE_2D);
-    glColor3ub(80, 190, 220);
+    glBindTexture(GL_TEXTURE_2D, cube2Texture);
     glTranslatef(90.0f, -18.7f, -130.0f);
     glScalef(10.0f, 10.0f, 10.0f);
     cubeModel.draw();
     glPopMatrix();
 
-    // Cube right (Coral Pink)
+    // Cube right 2 - use Cube1.png again
     glPushMatrix();
-    glDisable(GL_TEXTURE_2D);
-    glColor3ub(255, 111, 97);
+    glBindTexture(GL_TEXTURE_2D, cube1Texture);
     glTranslatef(20.0f, -18.7f, -210.0f);
     glScalef(17.0f, 17.0f, 17.0f);
     cubeModel.draw();
