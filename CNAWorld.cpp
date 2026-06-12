@@ -278,7 +278,7 @@ void MyVirtualWorld::draw()
 
     //kinger.draw();
 
-    gloinks.draw();
+    //gloinks.draw();
 
 }
 
