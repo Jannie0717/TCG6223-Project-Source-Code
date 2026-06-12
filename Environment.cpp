@@ -26,15 +26,15 @@ Environment::Environment()
 bool Environment::loadTextures()
 {
     circusObject1Texture = TextureLoader::loadTexture(
-        "Model\\Environment\\Texture\\CircusObject1.png"
+        "Model\\Environment\\Textures\\CircusObject1.png"
     );
 
     circusObject2Texture = TextureLoader::loadTexture(
-        "Model\\Environment\\Texture\\CircusObject2.png"
+        "Model\\Environment\\Textures\\CircusObject2.png"
     );
 
     castleWallTexture = TextureLoader::loadTexture(
-        "Model\\Environment\\Texture\\CastleWall.jpg"
+        "Model\\Environment\\Textures\\CastleWall.jpg"
     );
 
     return circusObject1Texture != 0 &&
