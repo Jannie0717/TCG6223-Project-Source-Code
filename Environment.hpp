@@ -36,6 +36,7 @@ namespace ProjectEnvironment
         GLuint groundTexture;
         GLuint roofTexture;
         GLuint castleWallTexture;
+        GLuint cube1Texture;
         GLuint cubeGroupedTexture;
         GLuint circusObject1Texture;
         GLuint circusObject2Texture;
