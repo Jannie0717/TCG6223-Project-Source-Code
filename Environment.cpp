@@ -153,21 +153,21 @@ void Environment::drawSkyBox() const
 
     glPushMatrix();
 
-    // Save current lighting state
-    GLboolean lightingWasOn;
-    glGetBooleanv(GL_LIGHTING, &lightingWasOn);
-
-    // Keep background texture bright
-    glDisable(GL_LIGHTING);
-
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, skyBoxTexture);
 
+    // Usually better to disable lighting for background
+    glDisable(GL_LIGHTING);
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
 
-    glColor3ub(255, 255, 255);
+    // Darken the whole background texture here
+    glColor3ub(180, 180, 180);
 
+    // Make sure texture color is multiplied by glColor
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    // Size of SkyBox
     glScalef(15.0f, 15.0f, 15.0f);
 
     skyBoxModel.draw();
@@ -175,12 +175,7 @@ void Environment::drawSkyBox() const
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
-
-    // Restore previous lighting state
-    if (lightingWasOn)
-        glEnable(GL_LIGHTING);
-    else
-        glDisable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
 
     glPopMatrix();
 }

@@ -40,32 +40,30 @@ void setupEnvironmentLighting()
     // Let both front and back faces receive lighting
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 
-    // IMPORTANT:
-    // Make textures react to lighting.
-    // Without this, textures may look almost unchanged.
+    // Make textures react to lighting
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-    // Lower ambient = stronger visible lighting difference
-    GLfloat globalAmbient[] = { 0.15f, 0.15f, 0.15f, 1.0f };
+    // Darker overall scene
+    GLfloat globalAmbient[] = { 0.12f, 0.12f, 0.12f, 1.0f };
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
 
-    // Put the light at one side so objects have bright and dark sides
+    // Main light position
     GLfloat lightPosition[] = { -180.0f, 220.0f, 120.0f, 1.0f };
 
-    // Warm circus-style main light
+    // Neutral dim white light
     GLfloat lightAmbient[]  = { 0.05f, 0.05f, 0.05f, 1.0f };
-    GLfloat lightDiffuse[]  = { 1.00f, 0.90f, 0.70f, 1.0f };
-    GLfloat lightSpecular[] = { 1.00f, 0.90f, 0.70f, 1.0f };
+    GLfloat lightDiffuse[]  = { 0.55f, 0.55f, 0.55f, 1.0f };
+    GLfloat lightSpecular[] = { 0.25f, 0.25f, 0.25f, 1.0f };
 
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
     glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmbient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
 
-    // Material shine
-    GLfloat materialSpecular[] = { 0.35f, 0.35f, 0.35f, 1.0f };
+    // Less shiny, more dark/matte
+    GLfloat materialSpecular[] = { 0.12f, 0.12f, 0.12f, 1.0f };
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialSpecular);
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 48.0f);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 16.0f);
 }
 // ==================================================================== //
 
@@ -326,8 +324,8 @@ void MyVirtualWorld::init()
 
 
     /*Whole World Lightning*/
+    // Notes: Must put add the end of this function.
     setupEnvironmentLighting();
-
 }
 
 void MyVirtualWorld::draw()
