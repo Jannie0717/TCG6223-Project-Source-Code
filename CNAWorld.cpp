@@ -240,6 +240,11 @@ void MyVirtualWorld::init()
         std::cerr << "Sphere failed to load.\n";
     }
 
+    if (!environment.loadTextures())
+    {
+        std::cerr << "Environment textures failed to load.\n";
+    }
+
 
     //#//#//#//#//#//#//#//#//#//#//#Texture#//#//#//#//#//#//#//#//#//#//#//#
 
@@ -276,9 +281,9 @@ void MyVirtualWorld::draw()
 {
     environment.draw();  //Environment
 
-    //kinger.draw();
+    kinger.draw();
 
-    gloinks.draw();
+    //gloinks.draw();
 
 }
 

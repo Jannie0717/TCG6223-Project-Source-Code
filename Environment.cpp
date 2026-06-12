@@ -1,21 +1,33 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include "Environment.hpp"
+#include "TextureLoader.hpp"
 
 using namespace ProjectEnvironment;
 
 Environment::Environment()
 {
+    // Objects
     skyBoxLoaded = false;
     groundLoaded = false;
-
+    roofLoaded = false;
     castleWallLoaded = false;
     cubeLoaded = false;
     cubeGroupedLoaded = false;
     irregularCubeLoaded = false;
     pillarLoaded = false;
-    roofLoaded = false;
     sphereLoaded = false;
+
+    // Textures
+    circusObject1Texture = 0;
+    circusObject2Texture = 0;
+}
+bool Environment::loadTextures()
+{
+    circusObject1Texture = TextureLoader::loadTexture("Model\\Environment\\Textures\\CircusObject1.png");
+    circusObject2Texture = TextureLoader::loadTexture("Model\\Environment\\Textures\\CircusObject2.png");
+
+    return circusObject1Texture != 0 && circusObject2Texture != 0;
 }
 
 bool Environment::loadSkyBox(const std::string& filePath)
@@ -126,131 +138,6 @@ void Environment::drawGround() const
     glPopMatrix();
 }
 
-void Environment::drawCastleWall() const
-{
-    if (!castleWallLoaded)
-        return;
-
-    glPushMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_NORMALIZE);
-
-    glColor3ub(160, 160, 160);
-
-    // Move slightly to the back-left area
-    glTranslatef(0.0f, -18.7f, 0.0f);
-    glScalef(8.0f, 8.0f, 8.0f);
-
-    castleWallModel.draw();
-
-    glDisable(GL_NORMALIZE);
-    glEnable(GL_CULL_FACE);
-
-    glPopMatrix();
-}
-
-void Environment::drawCube() const
-{
-    if (!cubeLoaded)
-        return;
-
-    glPushMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_NORMALIZE);
-
-    glColor3ub(200, 120, 80);
-
-    // Move cube forward-right for testing
-    glTranslatef(15.0f, -18.7f, 0.0f);
-    glScalef(8.0f, 8.0f, 8.0f);
-
-    cubeModel.draw();
-
-    glDisable(GL_NORMALIZE);
-    glEnable(GL_CULL_FACE);
-
-    glPopMatrix();
-}
-
-void Environment::drawCubeGrouped() const
-{
-    if (!cubeGroupedLoaded)
-        return;
-
-    glPushMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_NORMALIZE);
-
-    glColor3ub(170, 120, 200);
-
-    // Move grouped cube to another side for testing
-    glTranslatef(-15.0f, -18.7f, 0.0f);
-    glScalef(8.0f, 8.0f, 8.0f);
-
-    cubeGroupedModel.draw();
-
-    glDisable(GL_NORMALIZE);
-    glEnable(GL_CULL_FACE);
-
-    glPopMatrix();
-}
-
-void Environment::drawIrregularCube() const
-{
-    if (!irregularCubeLoaded)
-        return;
-
-    glPushMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_NORMALIZE);
-
-    glColor3ub(120, 200, 180);
-
-    // Move irregular cube to front-left
-    glTranslatef(-20.0f, -18.7f, 20.0f);
-    glScalef(8.0f, 8.0f, 8.0f);
-
-    irregularCubeModel.draw();
-
-    glDisable(GL_NORMALIZE);
-    glEnable(GL_CULL_FACE);
-
-    glPopMatrix();
-}
-
-void Environment::drawPillar() const
-{
-    if (!pillarLoaded)
-        return;
-
-    glPushMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_NORMALIZE);
-
-    glColor3ub(180, 180, 140);
-
-    // Move pillar to front-right
-    glTranslatef(20.0f, -18.7f, 15.0f);
-    glScalef(8.0f, 8.0f, 8.0f);
-
-    pillarModel.draw();
-
-    glDisable(GL_NORMALIZE);
-    glEnable(GL_CULL_FACE);
-
-    glPopMatrix();
-}
-
 void Environment::drawRoof() const
 {
     if (!roofLoaded)
@@ -276,29 +163,217 @@ void Environment::drawRoof() const
     glPopMatrix();
 }
 
-void Environment::drawSphere() const
+void Environment::drawCastleWall() const
 {
-    if (!sphereLoaded)
+    if (!castleWallLoaded)
         return;
-
-    glPushMatrix();
 
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
 
-    glColor3ub(255, 220, 120);
+    glColor3ub(150, 150, 150);
 
-    // Move sphere to center-front so it is easy to see
-    glTranslatef(0.0f, 0.0f, 10.0f);
-    glScalef(8.0f, 8.0f, 8.0f);
+    // Back wall left
+    glPushMatrix();
+    glTranslatef(-66.5f, -18.7f, -66.5f);
+    glScalef(10.0f, 15.0f, 10.0f);
+    castleWallModel.draw();
+    glPopMatrix();
 
-    sphereModel.draw();
+    // Front wall left
+    glPushMatrix();
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    glTranslatef(-66.5f, -18.7f, -66.5f);
+    glScalef(10.0f, 15.0f, 10.0f);
+    castleWallModel.draw();
+    glPopMatrix();
 
     glDisable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
+}
 
+void Environment::drawCube() const
+{
+    if (!cubeLoaded)
+        return;
+
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_NORMALIZE);
+
+    // Cube left (Dark Orange)
+    glPushMatrix();
+    glColor3ub(220, 110, 60);
+    glTranslatef(-90.0f, -18.7f, 100.0f);
+    glScalef(8.0f, 8.0f, 8.0f);
+    cubeModel.draw();
     glPopMatrix();
+
+    // Cube left (Mint Green)
+    glPushMatrix();
+    glColor3ub(168, 230, 207);
+    glTranslatef(-180.0f, -18.7f, 40.0f);
+    glScalef(15.0f, 15.0f, 15.0f);
+    cubeModel.draw();
+    glPopMatrix();
+
+    // Cube right (Light Blue)
+    glPushMatrix();
+    glColor3ub(80, 190, 220);
+    glTranslatef(90.0f, -18.7f, -130.0f);
+    glScalef(10.0f, 10.0f, 10.0f);
+    cubeModel.draw();
+    glPopMatrix();
+
+    // Cube right (Coral Pink)
+    glPushMatrix();
+    glColor3ub(255, 111, 97);
+    glTranslatef(20.0f, -18.7f, -210.0f);
+    glScalef(17.0f, 17.0f, 17.0f);
+    cubeModel.draw();
+    glPopMatrix();
+
+    glDisable(GL_NORMALIZE);
+    glEnable(GL_CULL_FACE);
+}
+
+void Environment::drawCubeGrouped() const
+{
+    if (!cubeGroupedLoaded)
+        return;
+
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_NORMALIZE);
+
+    // Purple grouped block near center but slightly behind
+    glPushMatrix();
+    glColor3ub(170, 100, 220);
+    glTranslatef(220.0f, -18.7f, 150.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    glScalef(15.0f, 15.0f, 15.0f);
+    cubeGroupedModel.draw();
+    glPopMatrix();
+
+    glDisable(GL_NORMALIZE);
+    glEnable(GL_CULL_FACE);
+}
+
+void Environment::drawIrregularCube() const
+{
+    if (!irregularCubeLoaded)
+        return;
+
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_NORMALIZE);
+
+    // Use white color so the texture color appears correctly
+    glColor3ub(255, 255, 255);
+
+    // Abstract prop 1 - CircusObject1 texture
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, circusObject1Texture);
+    glTranslatef(-42.0f, -18.7f, 25.0f);
+    glScalef(12.0f, 12.0f, 12.0f);
+    irregularCubeModel.draw();
+    glPopMatrix();
+
+    // Abstract prop 2 - CircusObject2 texture
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, circusObject2Texture);
+    glTranslatef(-55.0f, -18.7f, 46.0f);
+    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+    glScalef(9.0f, 9.0f, 9.0f);
+    irregularCubeModel.draw();
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_NORMALIZE);
+    glEnable(GL_CULL_FACE);
+}
+
+void Environment::drawPillar() const
+{
+    if (!pillarLoaded)
+        return;
+
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_NORMALIZE);
+
+    glColor3ub(210, 200, 150);
+
+    // Front-left pillar (Edited)
+    glPushMatrix();
+    glTranslatef(-150.0f, -18.7f, 27.0f);
+    glScalef(15.0f, 15.0f, 15.0f);
+    pillarModel.draw();
+    glPopMatrix();
+
+    // Back-right pillar
+    glPushMatrix();
+    glTranslatef(150.0f, -18.7f, -270.0f);
+    glScalef(15.0f, 15.0f, 15.0f);
+    pillarModel.draw();
+    glPopMatrix();
+
+    glDisable(GL_NORMALIZE);
+    glEnable(GL_CULL_FACE);
+}
+
+void Environment::drawSphere() const
+{
+    if (!sphereLoaded)
+        return;
+
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_NORMALIZE);
+
+    // Main yellow floating ball above center
+    glPushMatrix();
+    glColor3ub(255, 220, 120);
+    glTranslatef(-10.0f, 50.0f, 10.0f);
+    glScalef(9.0f, 9.0f, 9.0f);
+    sphereModel.draw();
+    glPopMatrix();
+
+    // Red floating ball left-back
+    glPushMatrix();
+    glColor3ub(240, 80, 80);
+    glTranslatef(-60.0f, 20.0f, -45.0f);
+    glScalef(10.0f, 10.0f, 10.0f);
+    sphereModel.draw();
+    glPopMatrix();
+
+    // Blue floating ball front-left
+    glPushMatrix();
+    glColor3ub(80, 160, 255);
+    glTranslatef(-90.0f, 30.0f, 90.0f);
+    glScalef(20.0f, 20.0f, 20.0f);
+    sphereModel.draw();
+    glPopMatrix();
+
+    // Purple floating ball right-back
+    glPushMatrix();
+    glColor3ub(180, 100, 230);
+    glTranslatef(75.0f, 35.0f, -60.0f);
+    glScalef(15.0f, 15.0f, 15.0f);
+    sphereModel.draw();
+    glPopMatrix();
+
+    // Orange floating ball right-front
+    glPushMatrix();
+    glColor3ub(255, 127, 0);
+    glTranslatef(85.0f, 25.0f, 100.0f);
+    glScalef(10.0f, 10.0f, 10.0f);
+    sphereModel.draw();
+    glPopMatrix();
+
+    glDisable(GL_NORMALIZE);
+    glEnable(GL_CULL_FACE);
 }
 
 
@@ -307,11 +382,12 @@ void Environment::draw() const
 {
     drawSkyBox();
     drawGround();
+    drawRoof();
+
     drawCastleWall();
     drawCube();
     drawCubeGrouped();
     drawIrregularCube();
     drawPillar();
-    drawRoof();
     drawSphere();
 }
