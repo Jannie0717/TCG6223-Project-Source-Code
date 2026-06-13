@@ -115,7 +115,9 @@ void Caine::drawHat() const
     glBindTexture(GL_TEXTURE_2D, hatTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -139,7 +141,9 @@ void Caine::drawLeftHand() const
     glBindTexture(GL_TEXTURE_2D, leftHandTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -163,7 +167,9 @@ void Caine::drawLeftLeg() const
     glBindTexture(GL_TEXTURE_2D, leftLegTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -187,7 +193,9 @@ void Caine::drawLeftPalm() const
     glBindTexture(GL_TEXTURE_2D, leftPalmTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -211,7 +219,13 @@ void Caine::drawLowerJaw() const
     glBindTexture(GL_TEXTURE_2D, lowerJawTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+
+
+    glTranslatef(0.0f, -17.5f, -28.0f);
+    glRotatef(180, 0, 1, 0);
+    glRotatef(-20, 1, 0, 0);
+
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -235,7 +249,9 @@ void Caine::drawRightHand() const
     glBindTexture(GL_TEXTURE_2D, rightHandTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -259,7 +275,9 @@ void Caine::drawRightLeg() const
     glBindTexture(GL_TEXTURE_2D, rightLegTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -283,7 +301,9 @@ void Caine::drawRightPalm() const
     glBindTexture(GL_TEXTURE_2D, rightPalmTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -307,7 +327,9 @@ void Caine::drawStaff() const
     glBindTexture(GL_TEXTURE_2D, staffTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -331,7 +353,9 @@ void Caine::drawTongue() const
     glBindTexture(GL_TEXTURE_2D, tongueTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -355,7 +379,9 @@ void Caine::drawTurso() const
     glBindTexture(GL_TEXTURE_2D, tursoTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -379,7 +405,9 @@ void Caine::drawUpperJaw() const
     glBindTexture(GL_TEXTURE_2D, upperJawTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(3.0f, 3.0f, 3.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -403,7 +431,9 @@ void Caine::drawRightEye() const
     glBindTexture(GL_TEXTURE_2D, rightEyeTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(-0.5f, -9.0f, 20.0f);
+    glScalef(4.0f, 4.0f, 4.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -427,7 +457,9 @@ void Caine::drawLeftEye() const
     glBindTexture(GL_TEXTURE_2D, leftEyeTextureID);
 
     glPushMatrix();
-    glTranslatef(0.0f, 15.0f, 0.0f);
+    glRotatef(180, 0, 1, 0);
+    glTranslatef(-0.5f, -9.0f, 20.0f);
+    glScalef(4.0f, 4.0f, 4.0f);
 
 
     glColor3f(1.0f, 1.0f, 1.0f);
