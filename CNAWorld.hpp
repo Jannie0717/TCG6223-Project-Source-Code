@@ -20,10 +20,13 @@
 #include "CNAmain.hpp"
 #include "Kinger.hpp"
 #include "Gloinks.hpp"
+#include "Caine.hpp"
+#include "Butterfly.hpp"
+#include "KingerRoll.hpp"
 #include "Environment.hpp"
+#include "AudioManager.hpp"
 
-// Later you can add:
-// #include "Labubu.hpp"
+// Example Later you can add:
 // #include "BattleEnvironment.hpp"
 
 namespace ProjectWorld
@@ -34,11 +37,15 @@ class MyVirtualWorld
 public:
     ProjectKinger::Kinger kinger;
     ProjectGloinks::Gloinks gloinks;
+    ProjectCaine::Caine caine;
+    ProjectButterfly::Butterfly butterfly;
+    ProjectKingerRoll::KingerRoll kingerRoll;
     ProjectEnvironment::Environment environment;
-
-    // Later:
-    // ProjectLabubu::Labubu labubu;
+    // Example Later:
     // BattleEnvironment battleEnvironment;
+
+    /*Audios*/
+    AudioManager audioManager;
 
     void init();
     void draw();

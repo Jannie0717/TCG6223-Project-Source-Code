@@ -20,6 +20,53 @@
 
 using namespace ProjectWorld;
 
+// =======================Whole environment lighting====================== //
+void setupEnvironmentLighting()
+{
+    // Enable OpenGL lighting
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    // Smooth shading
+    glShadeModel(GL_SMOOTH);
+
+    // Needed because many objects use glScalef()
+    glEnable(GL_NORMALIZE);
+
+    // Allow glColor3ub() to work with lighting
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+    // Let both front and back faces receive lighting
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+
+    // Make textures react to lighting
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    // Darker overall scene
+    GLfloat globalAmbient[] = { 0.12f, 0.12f, 0.12f, 1.0f };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
+
+    // Main light position
+    GLfloat lightPosition[] = { -180.0f, 220.0f, 120.0f, 1.0f };
+
+    // Neutral dim white light
+    GLfloat lightAmbient[]  = { 0.05f, 0.05f, 0.05f, 1.0f };
+    GLfloat lightDiffuse[]  = { 0.55f, 0.55f, 0.55f, 1.0f };
+    GLfloat lightSpecular[] = { 0.25f, 0.25f, 0.25f, 1.0f };
+
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  lightDiffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+
+    // Less shiny, more dark/matte
+    GLfloat materialSpecular[] = { 0.12f, 0.12f, 0.12f, 1.0f };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialSpecular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 16.0f);
+}
+// ==================================================================== //
+
 void MyVirtualWorld::init()
 {
     //#//#//#//#//#//#//#//#//#//#//#//#Model#//#//#//#//#//#//#//#//#//#//#//
@@ -78,9 +125,55 @@ void MyVirtualWorld::init()
 
 
     //////////////////////////////////Caine//////////////////////////////////
-    //const std::string headPath =
-        //"Model\\Kinger\\kinger_Head.txt";
+    const std::string caineHatPath =
+        "Model\\Caine\\caine_Hat.txt";
 
+    const std::string caineLeftHandPath =
+        "Model\\Caine\\caine_LeftHand.txt";
+
+    const std::string caineLeftLegPath =
+        "Model\\Caine\\caine_LeftLeg.txt";
+
+    const std::string caineLeftPalmPath =
+        "Model\\Caine\\caine_LeftPalm.txt";
+
+    const std::string caineLowerJawPath =
+        "Model\\Caine\\caine_LowerJaw.txt";
+
+    const std::string caineRightHandPath =
+        "Model\\Caine\\caine_RightHand.txt";
+
+    const std::string caineRightLegPath =
+        "Model\\Caine\\caine_RightLeg.txt";
+
+    const std::string caineRightPalmPath =
+        "Model\\Caine\\caine_RightPalm.txt";
+
+    const std::string caineStaffPath =
+        "Model\\Caine\\caine_Staff.txt";
+
+    const std::string caineTonguePath =
+        "Model\\Caine\\caine_Tongue.txt";
+
+    const std::string caineTursoPath =
+        "Model\\Caine\\caine_Turso.txt";
+
+    const std::string caineUpperJawPath =
+        "Model\\Caine\\caine_UpperJaw.txt";
+
+    const std::string caineLeftEyePath =
+        "Model\\Caine\\caine_LeftEye.txt";
+
+    const std::string caineRightEyePath =
+        "Model\\Caine\\caine_RightEye.txt";
+
+    //////////////////////////////////Butterfly//////////////////////////////////
+    const std::string butterflyLeftWingPath = "Model\\Butterfly\\butterfly_LeftWing.txt";
+    const std::string butterflyRightWingPath = "Model\\Butterfly\\butterfly_RightWing.txt";
+    const std::string butterflyTursoPath = "Model\\Butterfly\\butterfly_Turso.txt";
+
+    //////////////////////////////////Kinger Roll//////////////////////////////////
+    const std::string kingerRollPath = "Model\\Kinger_Roll\\kinger_Roll.txt";
 
     ////////////////////////////////Environment//////////////////////////////
     const std::string skyBoxPath =
@@ -194,6 +287,73 @@ void MyVirtualWorld::init()
         std::cerr << "Gloinks Triangular failed to load.\n";
     }
 
+    //////////////////////////////////Caine//////////////////////////////////
+    if (!caine.loadHat(caineHatPath))
+    {
+        std::cerr << "Caine hat failed to load.\n";
+    }
+
+    if (!caine.loadLeftHand(caineLeftHandPath))
+    { std::cerr << "Caine left hand failed to load.\n"; }
+
+    if (!caine.loadLeftLeg(caineLeftLegPath))
+    { std::cerr << "Caine left leg failed to load.\n"; }
+
+    if (!caine.loadLeftPalm(caineLeftPalmPath))
+    { std::cerr << "Caine left palm failed to load.\n"; }
+
+    if (!caine.loadLowerJaw(caineLowerJawPath))
+    { std::cerr << "Caine lower jaw failed to load.\n"; }
+
+    if (!caine.loadRightHand(caineRightHandPath))
+    { std::cerr << "Caine right hand failed to load.\n"; }
+
+    if (!caine.loadRightLeg(caineRightLegPath))
+    { std::cerr << "Caine right leg failed to load.\n"; }
+
+    if (!caine.loadRightPalm(caineRightPalmPath))
+    { std::cerr << "Caine right palm failed to load.\n"; }
+
+    if (!caine.loadStaff(caineStaffPath))
+    { std::cerr << "Caine staff failed to load.\n"; }
+
+    if (!caine.loadTongue(caineTonguePath))
+    { std::cerr << "Caine tongue failed to load.\n"; }
+
+    if (!caine.loadTurso(caineTursoPath))
+    { std::cerr << "Caine turso failed to load.\n"; }
+
+    if (!caine.loadUpperJaw(caineUpperJawPath))
+    { std::cerr << "Caine upper jaw failed to load.\n"; }
+
+    if (!caine.loadLeftEye(caineLeftEyePath))
+    { std::cerr << "Caine left eye failed to load.\n"; }
+
+    if (!caine.loadRightEye(caineRightEyePath))
+    { std::cerr << "Caine right eye failed to load.\n"; }
+
+    //////////////////////////////////Butterfly//////////////////////////////////
+    if (!butterfly.loadLeftWing(butterflyLeftWingPath))
+    {
+        std::cerr << "Butterfly left wing failed to load.\n";
+    }
+
+    if (!butterfly.loadRightWing(butterflyRightWingPath))
+    {
+        std::cerr << "Butterfly right wing failed to load.\n";
+    }
+
+    if (!butterfly.loadTurso(butterflyTursoPath))
+    {
+        std::cerr << "Butterfly turso failed to load.\n";
+    }
+
+    //////////////////////////////////Kinger Roll//////////////////////////////////
+    if (!kingerRoll.loadRoll(kingerRollPath))
+    {
+        std::cerr << "Kinger Roll failed to load.\n";
+    }
+
     ////////////////////////////////Environment//////////////////////////////
     if (!environment.loadSkyBox(skyBoxPath))
     {
@@ -240,49 +400,125 @@ void MyVirtualWorld::init()
         std::cerr << "Sphere failed to load.\n";
     }
 
+    if (!environment.loadTextures())
+    {
+        std::cerr << "Environment textures failed to load.\n";
+    }
+
 
     //#//#//#//#//#//#//#//#//#//#//#Texture#//#//#//#//#//#//#//#//#//#//#//#
 
     //////////////////////////////////Kinger//////////////////////////////////
     kinger.headTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/WoodTexture.jpg"
+    "Model/Kinger/Textures/WoodTexture.jpg"
     );
 
     kinger.headPieceTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/WoodTexture.jpg"
+    "Model/Kinger/Textures/WoodTexture.jpg"
     );
     kinger.clothTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/Kinger_Gown.png"
+    "Model/Kinger/Textures/Kinger_Gown.png"
     );
 
     kinger.rightHandwGunTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/RightHandwGun.png"
+    "Model/Kinger/Textures/RightHandwGun.png"
     );
 
     kinger.leftEyeTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/LeftEye.png"
+    "Model/Kinger/Textures/LeftEye.png"
     );
 
     kinger.rightEyeNTextureID = TextureLoader::loadTexture(
-    "Model/Kinger/RightEyeN.png"
+    "Model/Kinger/Textures/RightEyeN.png"
     );
 
-    // Later:
-    // labubu.loadHead(...);
+    //////////////////////////////////Gloinks//////////////////////////////////
+    gloinks.BowlingPinTextureID = TextureLoader::loadTexture(
+    "Model/Gloinks/Textures/Gloinks_BowlingPin.png"
+    );
+
+    gloinks.CircleTextureID = TextureLoader::loadTexture(
+    "Model/Gloinks/Textures/Gloinks_Circle.png"
+    );
+
+    gloinks.CubeTextureID = TextureLoader::loadTexture(
+    "Model/Gloinks/Textures/Gloinks_Cube.png"
+    );
+
+    gloinks.MoonTextureID = TextureLoader::loadTexture(
+    "Model/Gloinks/Textures/Gloinks_Moon.png"
+    );
+
+    gloinks.StarTextureID = TextureLoader::loadTexture(
+    "Model/Gloinks/Textures/Gloinks_Star.png"
+    );
+
+    gloinks.TriangularTextureID = TextureLoader::loadTexture(
+    "Model/Gloinks/Textures/Gloinks_Triangular.png"
+    );
+
+    //////////////////////////////////Caine//////////////////////////////////
+    caine.hatTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_Hat.png");
+    caine.leftHandTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_LeftHand.png");
+    caine.leftLegTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_LeftLeg.png");
+    caine.leftPalmTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_LeftPalm.png");
+    caine.lowerJawTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_LowerJaw.png");
+    caine.rightHandTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_RightHand.png");
+    caine.rightLegTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_RightLeg.png");
+    caine.rightPalmTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_RightPalm.png");
+    caine.staffTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_Staff.png");
+    caine.tongueTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_Tongue.png");
+    caine.tursoTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_Turso.png");
+    caine.upperJawTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_UpperJaw.png");
+    caine.leftEyeTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_LeftEye.png");
+    caine.rightEyeTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_RightEye.png");
+
+    //////////////////////////////////Butterfly//////////////////////////////////
+    butterfly.leftWingTextureID = TextureLoader::loadTexture(
+        "Model/Butterfly/Textures/Butterfly_LeftWing.png"
+    );
+
+    butterfly.rightWingTextureID = TextureLoader::loadTexture(
+        "Model/Butterfly/Textures/Butterfly_RightWing.png"
+    );
+
+    butterfly.tursoTextureID = TextureLoader::loadTexture(
+        "Model/Butterfly/Textures/Butterfly_Turso.png"
+    );
+
+    //////////////////////////////////Kinger Roll//////////////////////////////////
+    kingerRoll.rollTextureID = TextureLoader::loadTexture(
+        "Model/Kinger_Roll/Textures/Kinger_Roll.png"
+    );
+    // Example Later:
     // battleEnvironment.init();
+    // Continue here, please, thanks XD.
+
+    //==================================================================
+    // Notes: These two must put add the end of this function.
+    /*Whole World Lightning*/
+    setupEnvironmentLighting();
+
+    /*Background Music*/
+    audioManager.playBackgroundMusic("Audio\\BGM\\[Jigoku Shoujo OST] Ake ni Somaru - The Faustian (128k).wav");
 }
 
 void MyVirtualWorld::draw()
 {
-    //environment.draw();  //Environment
+    /*Environment*/
+    environment.draw();
 
+    /*Characters*/
     kinger.draw();
-
-    //gloinks.draw();
-
+    gloinks.draw();
+    caine.draw();
+    butterfly.draw();
+    kingerRoll.draw();
 }
 
 void MyVirtualWorld::tickTime()
 {
+    environment.tickTime();
+
     kinger.update(0.016f);
 }

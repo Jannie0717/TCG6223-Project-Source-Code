@@ -3,6 +3,7 @@
 
 #include "ObjModel.hpp"
 #include <string>
+#include <GL/glut.h>
 
 namespace ProjectEnvironment
 {
@@ -20,9 +21,12 @@ namespace ProjectEnvironment
         ObjModel roofModel;
         ObjModel sphereModel;
 
+        // Environment Animations
+        float animationTime;
+
+        // Environment Object Loader Checker
         bool skyBoxLoaded;
         bool groundLoaded;
-
         bool castleWallLoaded;
         bool cubeLoaded;
         bool cubeGroupedLoaded;
@@ -31,31 +35,56 @@ namespace ProjectEnvironment
         bool roofLoaded;
         bool sphereLoaded;
 
+        // Texture IDs
+        GLuint skyBoxTexture;
+        GLuint groundTexture;
+        GLuint roofTexture;
+        GLuint castleWallTexture;
+        GLuint cube1Texture;
+        GLuint cube2Texture;
+        GLuint cubeGroupedTexture;
+        GLuint circusObject1Texture;
+        GLuint circusObject2Texture;
+        GLuint pillarTexture;
+        GLuint skyTexture;
+
+        // Animation Texture IDs
+        GLuint glitchTexture;
+
     public:
         Environment();
 
+        // Environment Animation
+        void tickTime();
+
+        // Texture Loading
+        bool loadTextures();
+
+        // Object Construction
         bool loadSkyBox(const std::string& filePath);
         bool loadGround(const std::string& filePath);
-
+        bool loadRoof(const std::string& filePath);
         bool loadCastleWall(const std::string& filePath);
         bool loadCube(const std::string& filePath);
         bool loadCubeGrouped(const std::string& filePath);
         bool loadIrregularCube(const std::string& filePath);
         bool loadPillar(const std::string& filePath);
-        bool loadRoof(const std::string& filePath);
         bool loadSphere(const std::string& filePath);
 
         void drawSkyBox() const;
         void drawGround() const;
-
+        void drawRoof() const;
         void drawCastleWall() const;
         void drawCube() const;
         void drawCubeGrouped() const;
         void drawIrregularCube() const;
         void drawPillar() const;
-        void drawRoof() const;
         void drawSphere() const;
 
+        // Glitch Animation
+        void drawDigitalEffect() const;
+
+        //Main Draw Function
         void draw() const;
     };
 }

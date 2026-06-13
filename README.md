@@ -11,6 +11,8 @@ Made by ... ,Jaixen, ...
 - [Character Models] - Kinger (Done & Loaded) & Caine (Done but not Loaded) -Jamie
 - [Character Texture] - Kinger (Undone) & Caine (Currently Unavailable) -Jamie
 - [stb_image.h] #dont remove this file
+- Added Environment and Audio. (Animation for environment not done yet)
+- Please refer below on how to check the linker for the audio connectivity.
 
 ## READ THIS
 
@@ -37,3 +39,92 @@ This is a C++ code project for Computer Graphics, please read and follow instruc
 6. Run the project file.
 
 # IF you encounter any error, pls give a feedback to the previous contributors
+
+# Audio Setup Guide for Code::Blocks
+
+This project uses `AudioManager.cpp` and `AudioManager.hpp` to play background music using the Windows `PlaySound()` function.
+
+Because `PlaySound()` belongs to the Windows Multimedia library, each computer must link the project with:
+
+```text
+-lwinmm
+```
+
+## Required Audio Files
+
+Make sure these files/folders exist in the project:
+
+```text
+AudioManager.cpp
+AudioManager.hpp
+
+Audio
+└── BGM
+    └── DarkCircusTheme.wav
+```
+
+The background music should be in `.wav` format.
+
+## How to Add the Linker in Code::Blocks
+
+1. Open the project in Code::Blocks.
+2. Go to:
+
+```text
+Project → Build options
+```
+
+3. Select the main project name on the left side, not only `Debug` or `Release`.
+4. Open the tab:
+
+```text
+Linker settings
+```
+
+5. In the box called:
+
+```text
+Other linker options
+```
+
+add this line:
+
+```text
+-lwinmm
+```
+
+6. Click `OK`.
+7. Rebuild the project:
+
+```text
+Build → Rebuild
+```
+
+## Common Error
+
+If you see this error:
+
+```text
+undefined reference to PlaySoundA
+```
+
+it means the linker option was not added correctly.
+
+Check again that:
+
+```text
+-lwinmm
+```
+
+is inside:
+
+```text
+Project → Build options → Linker settings → Other linker options
+```
+
+## Important Note
+
+If the `.cbp` Code::Blocks project file is already updated and pushed to GitHub, the linker setting should be included automatically when other members pull the latest project.
+
+However, if the error still appears, manually add `-lwinmm` using the steps above.
+
