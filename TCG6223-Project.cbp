@@ -53,6 +53,8 @@
 		<Unit filename="Kinger.hpp" />
 		<Unit filename="KingerRoll.cpp" />
 		<Unit filename="KingerRoll.hpp" />
+		<Unit filename="KingerAnimation.cpp" />
+		<Unit filename="KingerAnimation.hpp" />
 		<Unit filename="ObjModel.cpp" />
 		<Unit filename="ObjModel.hpp" />
 		<Unit filename="TextureLoader.cpp" />

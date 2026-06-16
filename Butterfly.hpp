@@ -30,11 +30,11 @@ public:
     bool loadRightWing(const std::string& filePath);
     bool loadTurso(const std::string& filePath);
 
-    void drawLeftWing() const;
-    void drawRightWing() const;
+    void drawLeftWing(float flapAngle = 0.0f) const;
+    void drawRightWing(float flapAngle = 0.0f) const;
     void drawTurso() const;
 
-    void draw() const;
+    void draw(float flapAngle = 0.0f) const;
 };
 
 } // namespace ProjectButterfly

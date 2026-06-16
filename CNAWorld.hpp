@@ -49,7 +49,7 @@ public:
 
     void init();
     void draw();
-    void tickTime();
+    void tickTime(float cameraYaw, float cameraPitch, const bool* keyStates);
 };
 
 } // namespace ProjectWorld

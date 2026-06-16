@@ -32,7 +32,7 @@ bool Butterfly::loadTurso(const std::string& filePath)
     return tursoLoaded;
 }
 
-void Butterfly::drawLeftWing() const
+void Butterfly::drawLeftWing(float flapAngle) const
 {
     if (!leftWingLoaded)
         return;
@@ -45,10 +45,12 @@ void Butterfly::drawLeftWing() const
 
     glPushMatrix();
 
-    // Change these values if Butterfly is too big / small / high / low
-    glTranslatef(30.0f, 0.0f, 0.0f);
+    // Removed hardcoded glTranslatef(30.0f, 0.0f, 0.0f);
     glRotatef(90, 0, 1, 0);
     glScalef(3.0f, 3.0f, 3.0f);
+    
+    // Apply dynamic flap angle (rotating along the X-axis hinge)
+    glRotatef(flapAngle, 1.0f, 0.0f, 0.0f);
 
     glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -66,7 +68,7 @@ void Butterfly::drawLeftWing() const
     glDisable(GL_TEXTURE_2D);
 }
 
-void Butterfly::drawRightWing() const
+void Butterfly::drawRightWing(float flapAngle) const
 {
     if (!rightWingLoaded)
         return;
@@ -79,10 +81,12 @@ void Butterfly::drawRightWing() const
 
     glPushMatrix();
 
-    // Must be same transform as left wing to keep model aligned
-    glTranslatef(30.0f, 0.0f, 0.0f);
+    // Removed hardcoded glTranslatef(30.0f, 0.0f, 0.0f);
     glRotatef(90, 0, 1, 0);
     glScalef(3.0f, 3.0f, 3.0f);
+    
+    // Apply opposite dynamic flap angle
+    glRotatef(-flapAngle, 1.0f, 0.0f, 0.0f);
 
     glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -110,8 +114,7 @@ void Butterfly::drawTurso() const
 
     glPushMatrix();
 
-    // Must be same transform as wings to keep model aligned
-    glTranslatef(30.0f, 0.0f, 0.0f);
+    // Removed hardcoded glTranslatef(30.0f, 0.0f, 0.0f);
     glRotatef(90, 0, 1, 0);
     glScalef(3.0f, 3.0f, 3.0f);
 
@@ -130,9 +133,9 @@ void Butterfly::drawTurso() const
     glDisable(GL_TEXTURE_2D);
 }
 
-void Butterfly::draw() const
+void Butterfly::draw(float flapAngle) const
 {
-    drawLeftWing();
-    drawRightWing();
+    drawLeftWing(flapAngle);
+    drawRightWing(flapAngle);
     drawTurso();
 }
