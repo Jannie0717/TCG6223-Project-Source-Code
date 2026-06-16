@@ -90,6 +90,12 @@ Kinger::Kinger()
     velocityY = 0.0f;
     isGrounded = true;
     jumpScaleY = 1.0f;
+    uniformScale = 1.0f;
+}
+
+void Kinger::setScale(float scale)
+{
+    uniformScale = scale;
 }
 
 void Kinger::jump()
@@ -694,6 +700,9 @@ void Kinger::draw() const
     // BACK faces the camera, which is the correct TPS default orientation.
     const float MODEL_FACING_OFFSET = 3.14159265f; // π radians = 180 degrees
     glRotatef((facingYaw + MODEL_FACING_OFFSET) * RAD_TO_DEG, 0.0f, 1.0f, 0.0f);
+
+    // Apply uniform scale
+    glScalef(uniformScale, uniformScale, uniformScale);
 
     // Task 3: Apply the Model Swap
     if (animation.showBallModel)

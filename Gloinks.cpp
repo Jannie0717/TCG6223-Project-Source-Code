@@ -14,7 +14,12 @@ Gloinks::Gloinks()
     gloinksMoonLoaded = false;
     gloinksStarLoaded = false;
     gloinksTriangularLoaded = false;
+    uniformScale = 1.0f;
+}
 
+void Gloinks::setScale(float scale)
+{
+    uniformScale = scale;
 }
 
 bool Gloinks::loadGloinksBowlingPin(const std::string& filePath)
@@ -170,6 +175,12 @@ void Gloinks::drawGloinksTriangular() const
 void Gloinks::draw() const
 {
 
+    glPushMatrix();
+    // Translate to the pivot point used by Gloinks' parts, scale, then translate back
+    glTranslatef(0.0f, -19.0f, 20.0f);
+    glScalef(uniformScale, uniformScale, uniformScale);
+    glTranslatef(0.0f, 19.0f, -20.0f);
+
     drawGloinksBowlingPin();
     drawGloinksCirle();
     drawGloinksCube();
@@ -177,4 +188,5 @@ void Gloinks::draw() const
     drawGloinksStar();
     drawGloinksTriangular();
 
+    glPopMatrix();
 }

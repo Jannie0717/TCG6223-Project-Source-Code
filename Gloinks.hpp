@@ -32,6 +32,9 @@ private:
 public:
     Gloinks();
 
+    float uniformScale;
+    void setScale(float scale);
+
     GLuint BowlingPinTextureID;
     GLuint CircleTextureID;
     GLuint CubeTextureID;
@@ -62,4 +65,3 @@ public:
 } // namespace ProjectGloinks
 
 #endif
-
