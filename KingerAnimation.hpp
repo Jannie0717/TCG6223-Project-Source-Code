@@ -17,7 +17,7 @@ public:
     float armRotation;
     float armSwayWeight;
 
-    // Combat skill state variables
+    // Gun Shot
     float skillTimer;
     bool  isCastingSkill;
     float skillArmRotation;
@@ -33,7 +33,7 @@ public:
     float bulletPosY;
     float bulletPosZ;
     
-    // Task 1: Track the Trajectory Data
+    // Trajectory Data
     float bulletStartX;
     float bulletStartY;
     float bulletStartZ;
@@ -43,14 +43,14 @@ public:
     
     float bulletDistance;
 
-    // Task 1: Add Roll State Variables
+    // Roll State Variables
     bool  isRolling;
     float rollTimer;
     int   rollPhase;
     float rollSquashY;
     bool  showBallModel;
 
-    // Task 1: Ammo & Reload State Variables
+    // Ammo & Reload State Variables
     int currentAmmo;
     static const int MAX_AMMO = 30;
     
@@ -62,7 +62,7 @@ public:
     float rightArmReloadPitch;
     float rightArmReloadYaw;
     
-    // Task 1: Butterfly Heal Variables
+    // Butterfly Heal Variables
     int butterflyCharges;
     bool isHealing;
     float healTimer;

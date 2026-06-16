@@ -25,10 +25,6 @@ void KingerRoll::drawRoll() const
 
     glPushMatrix();
 
-    // Change these values if Kinger_Roll appears too big / small / far
-
-    // The positional translations are handled dynamically inside Kinger.cpp
-    // so we remove the hardcoded world offset here to keep it centered on the player.
     glRotatef(180, 0, 1, 0);
     glScalef(5.0f, 5.0f, 5.0f);
 

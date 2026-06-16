@@ -97,10 +97,6 @@ MyViewer   viewer;
 MySetting  setting;
 MyAxis     worldaxis;
 
-// ==========================================================================
-// TPS Camera globals
-// All tunable values are named constants — no hard coding.
-// ==========================================================================
 static const float CAMERA_DISTANCE           = 60.0f;  // units BEHIND Kinger (must be positive)
 static const float CAMERA_BASE_HEIGHT        = 30.0f;  // extra height above the target point
 static const float CAMERA_SHOULDER_OFFSET    = 18.0f;  // Over-the-shoulder offset to the right
@@ -112,28 +108,18 @@ static const float KINGER_MOVE_SPEED         =  1.0f;  // world units per key pr
 static const float CAMERA_KEY_TURN_INC       =  0.04f; // radians per arrow key
 
 float cameraYaw   = 0.0f;  // horizontal camera angle, radians
-float cameraPitch = 0.4f;  // vertical camera angle, radians (positive = camera sits higher, looking down)
+float cameraPitch = 0.4f;  // vertical camera angle, radians 
 
-// Task 1: Add Camera Tracking State
+
 float cameraTrackY = -18.7f;
 const float CAMERA_FOLLOW_SPEED = 10.0f;
 
-// Tracks which keys are currently held down.
-// Indexed by the ASCII value of the key (0–255).
-// Set to true in myKeyboardFunc, cleared in myKeyboardUpFunc.
 bool keyStates[256] = {false};
-// ==========================================================================
 
-// --------------------------------------------------------------------------
-// drawCrosshair — renders a 2D aiming reticle over the 3D scene.
-// We disable depth testing and switch to an orthographic projection so
-// the crosshair stays locked to the center of the window.
-// --------------------------------------------------------------------------
 void drawCrosshair()
 {
     glDisable(GL_DEPTH_TEST);
 
-    // Switch to 2D UI projection
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -147,7 +133,6 @@ void drawCrosshair()
     float cy = (window.height / 2.0f)+30;
     float size = 10.0f;
 
-    // Draw a simple white cross
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_LINES);
         glVertex2f(cx - size, cy);
@@ -158,7 +143,6 @@ void drawCrosshair()
 
     glPopMatrix();
 
-    // Restore 3D projection
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
@@ -173,7 +157,6 @@ void updateKeyStatesFromWindows()
     keyStates['s'] = keyStates['S'] = (GetAsyncKeyState('S') & 0x8000) != 0;
     keyStates['d'] = keyStates['D'] = (GetAsyncKeyState('D') & 0x8000) != 0;
 
-    // Left mouse button for auto shooting
     keyStates[1] = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
 }
 
@@ -181,60 +164,32 @@ void myDisplayFunc(void)
 {
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
- // ------------------------------------------------------------------
- // Follow camera: rebuild the view matrix every frame so the camera
- // always sits behind and above Kinger at the current cameraYaw/Pitch.
- //
- // kinger.posY is stored as -18.7f (ground level) and is used only as
- // a metadata value.  Kinger is actually DRAWN at Y = 0 (see Kinger::draw).
- // We therefore build both the look-at target and the eye position
- // from Y = 0 + CAMERA_TARGET_HEIGHT_OFFSET, which puts them at
- // Kinger's visual chest/centre rather than underground.
- //
- // Eye position (spherical orbit around the target point):
- //   eyeX = posX + sin(yaw)  * cos(pitch) * distance
- //   eyeY = targetY + CAMERA_BASE_HEIGHT + sin(pitch) * distance
- //   eyeZ = posZ + cos(yaw)  * cos(pitch) * distance
- // ------------------------------------------------------------------
- // ------------------------------------------------------------------
  float& kX = myvirtualworld.kinger.posX;
  float& kZ = myvirtualworld.kinger.posZ;
 
- // --- Task 2: Smooth Interpolation Math ---
- // Calculate deltaTime for the camera interpolation
  static int lastTime = glutGet(GLUT_ELAPSED_TIME);
  int currentTime = glutGet(GLUT_ELAPSED_TIME);
  float deltaTime = (currentTime - lastTime) / 1000.0f;
  if (deltaTime > 0.1f) deltaTime = 0.1f;
  lastTime = currentTime;
 
- // Smoothly interpolate cameraTrackY toward Kinger's true posY
  cameraTrackY += (myvirtualworld.kinger.posY - cameraTrackY) * CAMERA_FOLLOW_SPEED * deltaTime;
 
- // --- Task 3: Update gluLookAt Math ---
- // True visual centre of Kinger in world space.
- // Because Kinger's mesh is offset by +18.7f relative to his raw posY, we must add 18.7f to cameraTrackY here.
  const float baseTargetY = (cameraTrackY + 18.7f) + CAMERA_TARGET_HEIGHT_OFFSET;
 
- // Calculate the camera's local "Right" vector (perpendicular to forward)
- // We use this to shift the camera over Kinger's right shoulder.
  float rightX = std::cos(cameraYaw);
  float rightZ = -std::sin(cameraYaw);
 
- // Apply the shoulder offset to the target
  float targetX = kX + rightX * CAMERA_SHOULDER_OFFSET;
  float targetZ = kZ + rightZ * CAMERA_SHOULDER_OFFSET;
 
  float cosPitch = std::cos(cameraPitch);
  float sinPitch = std::sin(cameraPitch);
 
- // Calculate eye position orbiting around the newly offset target
  float eyeX = targetX + std::sin(cameraYaw) * cosPitch * CAMERA_DISTANCE;
  float eyeY = baseTargetY + CAMERA_BASE_HEIGHT + sinPitch * CAMERA_DISTANCE;
  float eyeZ = targetZ + std::cos(cameraYaw) * cosPitch * CAMERA_DISTANCE;
 
- // Prevent the camera from dipping below the floor.
- // kinger.posY stores the ground level metadata (-18.7f).
  const float GROUND_LEVEL = myvirtualworld.kinger.posY;
  if (eyeY < GROUND_LEVEL + 1.0f)
  {
@@ -244,11 +199,10 @@ void myDisplayFunc(void)
  glMatrixMode(GL_MODELVIEW);
  glLoadIdentity();
  gluLookAt(
-     eyeX,    eyeY,        eyeZ,    // eye: behind, above, and to the right
-     targetX, baseTargetY, targetZ, // target: offset to the right
-     0.0f,    1.0f,        0.0f     // world up vector
+     eyeX,    eyeY,        eyeZ,
+     targetX, baseTargetY, targetZ, 
+     0.0f,    1.0f,        0.0f 
  );
- // ------------------------------------------------------------------
 
  glPushMatrix();
 
@@ -276,36 +230,28 @@ void myReshapeFunc(int width, int height)
  glViewport(0, 0, width, height);
 }
 
-// --------------------------------------------------------------------------
-// myKeyboardFunc — key DOWN: record state; handle one-shot actions.
-// Movement (W/A/S/D) is intentionally NOT handled here; it is evaluated
-// every frame inside kinger.update() via the keyStates array so that
-// multiple simultaneous keys all register correctly.
-// --------------------------------------------------------------------------
 void myKeyboardFunc(unsigned char key, int x, int y)
 {
- // Always record that this key is now held.
  keyStates[key] = true;
 
- // One-shot actions that should fire exactly once per press:
  switch (key)
  {
-    // Task 4: Free the Spacebar for Jumping
+    // Jumping
     case ' ': myvirtualworld.kinger.jump(); break;
 
-    // Task 4: Map Roll Skill
+    // Roll Skill
     case 'c':
     case 'C':
         myvirtualworld.kinger.animation.castRollSkill();
         break;
 
-    // Task 5: Input Binding for Reload
+    // Reload
     case 'r':
     case 'R':
         myvirtualworld.kinger.animation.castReload();
         break;
 
-    // Task 4: Map Heal Skill
+    // Heal Skill
     case 'f':
     case 'F':
         myvirtualworld.kinger.animation.castHealSkill(myvirtualworld.kinger.currentHealth, myvirtualworld.kinger.maxHealth);
@@ -316,11 +262,6 @@ void myKeyboardFunc(unsigned char key, int x, int y)
  glutPostRedisplay();
 }
 
-// --------------------------------------------------------------------------
-// myKeyboardUpFunc — key UP: clear state.
-// Registered with glutKeyboardUpFunc so the keyStates array always reflects
-// which keys are physically held at the time of each frame update.
-// --------------------------------------------------------------------------
 void myKeyboardUpFunc(unsigned char key, int x, int y)
 {
  keyStates[key] = false;
@@ -330,8 +271,6 @@ void mySpecialFunc(int key, int x, int y)
 {
  switch (key)
  {
-    // Arrow keys: keyboard fallback for camera look (mouse is primary).
-    // UP / DOWN adjust vertical angle (pitch); LEFT / RIGHT adjust horizontal (yaw).
     case GLUT_KEY_UP   : cameraPitch -= CAMERA_KEY_TURN_INC;
                          if (cameraPitch < CAMERA_PITCH_MIN) cameraPitch = CAMERA_PITCH_MIN;
                          break;
@@ -360,37 +299,24 @@ void mySpecialFunc(int key, int x, int y)
  glutPostRedisplay();
 }
 
-// --------------------------------------------------------------------------
-// myPassiveMotionFunc — called by GLUT whenever the mouse moves without a
-// button held. We warp the cursor back to the window centre every frame so
-// it never hits the edge, then accumulate the delta into cameraYaw / Pitch.
-// --------------------------------------------------------------------------
 void myPassiveMotionFunc(int x, int y)
 {
  int centerX = window.width  / 2;
  int centerY = window.height / 2;
 
- // Ignore the synthetic warp callback to prevent a feedback loop.
  if (x == centerX && y == centerY)
      return;
 
  int deltaX = x - centerX;
  int deltaY = y - centerY;
 
- // Horizontal mouse movement rotates the camera left/right (yaw).
  cameraYaw -= deltaX * MOUSE_SENSITIVITY;
 
- // Vertical mouse movement tilts the camera up/down (pitch).
- // In GLUT, deltaY > 0 means the mouse moved DOWN the screen.
- // Moving the mouse DOWN should lower the camera (reduce pitch),
- // so we SUBTRACT deltaY to match standard TPS "mouse-forward = look up" feel.
  cameraPitch += deltaY * MOUSE_SENSITIVITY;
 
- // Clamp pitch so the camera cannot flip past straight up or below ground.
  if (cameraPitch > CAMERA_PITCH_MAX) cameraPitch = CAMERA_PITCH_MAX;
  if (cameraPitch < CAMERA_PITCH_MIN) cameraPitch = CAMERA_PITCH_MIN;
 
- // Warp the system cursor back to the centre of the window.
  glutWarpPointer(centerX, centerY);
 
  glutPostRedisplay();
@@ -403,11 +329,8 @@ void myMouseFunc(int button, int state, int x, int y)
         case GLUT_LEFT_BUTTON:
             if (state == GLUT_DOWN)
             {
-                // Task 4: Map Mouse to Shoot
-                // Fire immediately on click
                 myvirtualworld.kinger.animation.castGunSkill();
 
-                // Map Left Click to a special keyState index (1) for continuous auto-fire
                 keyStates[1] = true;
             }
             if (state == GLUT_UP)
@@ -417,17 +340,12 @@ void myMouseFunc(int button, int state, int x, int y)
             break;
 
         case GLUT_RIGHT_BUTTON:
-            // Left click is currently unused in TPS mode,
-            // but kept structurally intact.
             break;
     }
 }
 
 void myMotionFunc(int x, int y)
 {
-    // In TPS mode, clicking and dragging (MotionFunc) should do exactly
-    // the same thing as moving the mouse without clicking (PassiveMotionFunc).
-    // This allows the player to continue aiming while holding Right Click to shoot!
     myPassiveMotionFunc(x, y);
 }
 
@@ -527,7 +445,6 @@ void myInit()
  glutDisplayFunc(myDisplayFunc);
  glutReshapeFunc(myReshapeFunc);
  glutKeyboardFunc(myKeyboardFunc);
- //glutKeyboardUpFunc(myKeyboardUpFunc);  // clears keyStates when keys are released
  glutSpecialFunc(mySpecialFunc);
  glutMotionFunc(myMotionFunc);
  glutMouseFunc(myMouseFunc);
