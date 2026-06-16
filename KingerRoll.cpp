@@ -27,7 +27,8 @@ void KingerRoll::drawRoll() const
 
     // Change these values if Kinger_Roll appears too big / small / far
 
-    glTranslatef(-30.0f, -19.3f, 0.0f);
+    // The positional translations are handled dynamically inside Kinger.cpp
+    // so we remove the hardcoded world offset here to keep it centered on the player.
     glRotatef(180, 0, 1, 0);
     glScalef(5.0f, 5.0f, 5.0f);
 

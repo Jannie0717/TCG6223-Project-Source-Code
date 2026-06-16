@@ -510,15 +510,43 @@ void MyVirtualWorld::draw()
 
     /*Characters*/
     kinger.draw();
-    gloinks.draw();
-    caine.draw();
-    butterfly.draw();
-    kingerRoll.draw();
+    //gloinks.draw();
+    //caine.draw();
+    //butterfly.draw();
+    //kingerRoll.draw();
 }
 
-void MyVirtualWorld::tickTime()
+void MyVirtualWorld::tickTime(float cameraYaw, float cameraPitch, const bool* keyStates)
 {
-    environment.tickTime();
+    // --- Real delta-time clock for Kinger (matches environment.tickTime()) ---
+    static int previousKingerTime = -1;
 
-    kinger.update(0.016f);
+    int currentKingerTime = glutGet(GLUT_ELAPSED_TIME);
+
+    // On the very first call, record the time and skip the update
+    // so we do not pass an undefined delta to kinger.update().
+    if (previousKingerTime < 0)
+    {
+        previousKingerTime = currentKingerTime;
+    }
+    else
+    {
+        // Convert milliseconds to seconds
+        float deltaTime = (currentKingerTime - previousKingerTime) / 1000.0f;
+        previousKingerTime = currentKingerTime;
+
+        // Clamp to avoid a sudden large jump if the window was frozen or minimised
+        const float MAX_DELTA_TIME = 0.1f;
+        if (deltaTime > MAX_DELTA_TIME)
+        {
+            deltaTime = MAX_DELTA_TIME;
+        }
+
+        // Pass cameraYaw + cameraPitch + keyStates so kinger.update() can evaluate
+        // continuous multi-key movement with diagonal normalisation and aiming.
+        kinger.update(deltaTime, cameraYaw, cameraPitch, keyStates);
+    }
+    // -------------------------------------------------------------------------
+
+    environment.tickTime();
 }
