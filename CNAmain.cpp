@@ -490,6 +490,8 @@ void myWelcome()
  cout << "| TPS Controls:                                                 |\n";
  cout << "|   <w>,<s>             => move Kinger forward / backward       |\n";
  cout << "|   <a>,<d>             => strafe Kinger left / right           |\n";
+ cout << "|   <f>                 => cast heal skill                      |\n";
+ cout << "|   <c>                 => roll                                 |\n";
  cout << "|   Mouse (move)        => rotate camera (yaw + pitch)          |\n";
  cout << "|   Arrow UP/DOWN       => camera pitch (keyboard fallback)     |\n";
  cout << "|   Arrow LEFT/RIGHT    => camera yaw   (keyboard fallback)     |\n";

@@ -87,6 +87,12 @@ Kinger::Kinger()
     velocityY = 0.0f;
     isGrounded = true;
     jumpScaleY = 1.0f;
+    uniformScale = 1.0f;
+}
+
+void Kinger::setScale(float scale)
+{
+    uniformScale = scale;
 }
 
 void Kinger::jump()
@@ -657,6 +663,9 @@ void Kinger::draw() const
 
     const float MODEL_FACING_OFFSET = 3.14159265f;
     glRotatef((facingYaw + MODEL_FACING_OFFSET) * RAD_TO_DEG, 0.0f, 1.0f, 0.0f);
+
+    // Apply uniform scale
+    glScalef(uniformScale, uniformScale, uniformScale);
 
     // Apply Minecraft-style death animation: fall stiffly to the right side
     if (animation.isDead)

@@ -66,6 +66,11 @@ public:
     float targetLeanRoll;
     float currentLeanRoll;
 
+    float uniformScale;
+    void setScale(float scale);
+
+    // Move Kinger relative to the camera's current horizontal angle (cameraYaw).
+    // forward/backward: W / S keys.
     void moveForward(float speed, float cameraYaw);
     void moveRight(float speed, float cameraYaw);
 

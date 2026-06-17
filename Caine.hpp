@@ -46,6 +46,9 @@ private:
 public:
     Caine();
 
+    float uniformScale;
+    void setScale(float scale);
+
     GLuint hatTextureID;
     GLuint leftHandTextureID;
     GLuint leftLegTextureID;

@@ -494,6 +494,11 @@ void MyVirtualWorld::init()
     // battleEnvironment.init();
     // Continue here, please, thanks XD.
 
+    // Example of scaling Kinger (makes him 1.5x larger)
+    kinger.setScale(0.5f);
+    //caine.setScale();
+    
+
     //==================================================================
     // Notes: These two must put add the end of this function.
     /*Whole World Lightning*/

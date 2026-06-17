@@ -20,6 +20,12 @@ Caine::Caine()
     tongueLoaded = false;
     tursoLoaded = false;
     upperJawLoaded = false;
+    uniformScale = 1.0f;
+}
+
+void Caine::setScale(float scale)
+{
+    uniformScale = scale;
 }
 
 bool Caine::loadHat(const std::string& filePath)
@@ -477,6 +483,12 @@ void Caine::drawLeftEye() const
 void Caine::draw() const
 {
 
+    glPushMatrix();
+    // Translate to the pivot point used by Caine's parts, scale, then translate back
+    glTranslatef(0.0f, -19.5f, 20.0f);
+    glScalef(uniformScale, uniformScale, uniformScale);
+    glTranslatef(0.0f, 19.5f, -20.0f);
+
     drawHat();
     drawUpperJaw();
     drawLowerJaw();
@@ -491,4 +503,6 @@ void Caine::draw() const
     drawStaff();
     drawRightEye();
     drawLeftEye();
+
+    glPopMatrix();
 }

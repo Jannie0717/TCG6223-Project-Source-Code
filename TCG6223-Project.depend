@@ -496,12 +496,17 @@
 	"KingerAnimation.hpp"
 	<cmath>
 
+<<<<<<< HEAD
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\audiomanager.cpp
+=======
+1781272005 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\audiomanager.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"AudioManager.hpp"
 	<windows.h>
 	<mmsystem.h>
 	<iostream>
 
+<<<<<<< HEAD
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\audiomanager.hpp
 	<string>
 
@@ -510,25 +515,51 @@
 	"Butterfly.hpp"
 
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\butterfly.hpp
+=======
+1781272005 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\audiomanager.hpp
+	<string>
+
+1781587114 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\butterfly.cpp
+	<GL/glut.h>
+	"Butterfly.hpp"
+
+1781587114 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\butterfly.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<string>
 	"ObjModel.hpp"
 
+<<<<<<< HEAD
 1780756234 c:\users\user\desktop\tcg6223-project-source-code\objmodel.hpp
 	<vector>
 	<string>
 
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\caine.cpp
+=======
+1781272005 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\objmodel.hpp
+	<vector>
+	<string>
+
+1781490368 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caine.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<iostream>
 	"Caine.hpp"
 
+<<<<<<< HEAD
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\caine.hpp
+=======
+1781490368 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caine.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<string>
 	"ObjModel.hpp"
 
+<<<<<<< HEAD
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\cnamain.cpp
+=======
+1781587126 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnamain.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"xx.hpp"
 	<cstdlib>
 	<iostream>
@@ -539,13 +570,21 @@
 	"CNAmain.hpp"
 	"CNAWorld.hpp"
 
+<<<<<<< HEAD
 1780983457 c:\users\user\desktop\tcg6223-project-source-code\cnamain.hpp
+=======
+1781587113 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnamain.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<string>
 	<cmath>
 	<iostream>
 	<GL/glut.h>
 
+<<<<<<< HEAD
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\cnaworld.hpp
+=======
+1781587114 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnaworld.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"CNAmain.hpp"
 	"Kinger.hpp"
 	"Gloinks.hpp"
@@ -555,11 +594,16 @@
 	"Environment.hpp"
 	"AudioManager.hpp"
 
+<<<<<<< HEAD
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\kinger.hpp
+=======
+1781587114 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kinger.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"ObjModel.hpp"
 	"KingerAnimation.hpp"
 	<string>
 
+<<<<<<< HEAD
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\kingeranimation.hpp
 
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\gloinks.hpp
@@ -567,16 +611,43 @@
 	<string>
 
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\kingerroll.hpp
+=======
+1781587114 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingeranimation.hpp
+
+1781490368 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\gloinks.hpp
+	"ObjModel.hpp"
+	<string>
+
+1781490368 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingerroll.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<string>
 	"ObjModel.hpp"
 
+<<<<<<< HEAD
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\environment.hpp
+=======
+1781490368 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\environment.hpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"ObjModel.hpp"
 	<string>
 	<GL/glut.h>
 
+<<<<<<< HEAD
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\environment.cpp
+=======
+1781587114 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnaworld.cpp
+	<GL/glut.h>
+	<iostream>
+	"CNAWorld.hpp"
+	"TextureLoader.hpp"
+
+1781272005 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\textureloader.hpp
+	<GL/glut.h>
+	<string>
+
+1781490368 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\environment.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<windows.h>
 	<GL/gl.h>
 	<GL/glut.h>
@@ -584,22 +655,31 @@
 	"Environment.hpp"
 	"TextureLoader.hpp"
 
+<<<<<<< HEAD
 1780756234 c:\users\user\desktop\tcg6223-project-source-code\textureloader.hpp
 	<GL/glut.h>
 	<string>
 
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\gloinks.cpp
+=======
+1781490368 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\gloinks.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<iostream>
 	"Gloinks.hpp"
 
+<<<<<<< HEAD
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\kinger.cpp
+=======
+1781587126 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kinger.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<iostream>
 	<cmath>
 	"Kinger.hpp"
 	"CNAWorld.hpp"
 
+<<<<<<< HEAD
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\kingeranimation.cpp
 	"KingerAnimation.hpp"
 	<cmath>
@@ -609,6 +689,17 @@
 	"KingerRoll.hpp"
 
 1780756234 source:c:\users\user\desktop\tcg6223-project-source-code\objmodel.cpp
+=======
+1781587114 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingeranimation.cpp
+	"KingerAnimation.hpp"
+	<cmath>
+
+1781587114 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingerroll.cpp
+	<GL/glut.h>
+	"KingerRoll.hpp"
+
+1781272005 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\objmodel.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	<GL/glut.h>
 	<fstream>
 	<sstream>
@@ -618,12 +709,20 @@
 	<string>
 	"ObjModel.hpp"
 
+<<<<<<< HEAD
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\textureloader.cpp
+=======
+1781272005 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\textureloader.cpp
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"TextureLoader.hpp"
 	<iostream>
 	"stb_image.h"
 
+<<<<<<< HEAD
 1780756234 c:\users\user\desktop\tcg6223-project-source-code\stb_image.h
+=======
+1781272005 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\stb_image.h
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
 	"stb_image.h"
 	<stdio.h>
 	<stdlib.h>
@@ -640,9 +739,12 @@
 	<intrin.h>
 	<arm_neon.h>
 
+<<<<<<< HEAD
 1781605297 source:c:\users\user\desktop\tcg6223-project-source-code\cnaworld.cpp
 	<GL/glut.h>
 	<iostream>
 	"CNAWorld.hpp"
 	"TextureLoader.hpp"
 
+=======
+>>>>>>> f55a54dc0f91303aa74d4b5a7e0ec18bc81f7529
