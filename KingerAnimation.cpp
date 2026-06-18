@@ -1,6 +1,9 @@
 #include "KingerAnimation.hpp"
 #include <cmath>
 
+/**
+ * Constructor that resets all states, timers, and factors to their defaults.
+ */
 KingerAnimation::KingerAnimation()
     : idleTimer(0.0f)
     , hoverOffset(0.0f)
@@ -50,6 +53,9 @@ KingerAnimation::KingerAnimation()
 {
 }
 
+/**
+ * Casts the gun skill, reducing ammo count, and resetting shooting timers/recoil.
+ */
 void KingerAnimation::castGunSkill()
 {
     if (isRolling || isReloading || currentAmmo <= 0 || isHealing || isHurt) return;
@@ -79,7 +85,17 @@ void KingerAnimation::castGunSkill()
     }
 }
 
-void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float currentPitch, float kingerX, float kingerY, float kingerZ)
+/**
+ * Updates the gunshot recoil timeline and calculates active bullet positions.
+ * deltaTime The elapsed frame time in seconds.
+ * currentYaw Current facing horizontal yaw angle.
+ * currentPitch Current aiming vertical pitch angle.
+ * kingerX Current world X position of the player.
+ * kingerY Current world Y position of the player.
+ * kingerZ Current world Z position of the player.
+ * modelScale Current uniform scale of the player model.
+ */
+void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float currentPitch, float kingerX, float kingerY, float kingerZ, float modelScale)
 {
     if (!isCastingSkill)
     {
@@ -89,8 +105,6 @@ void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float 
         return;
     }
 
-    float aimPitchDeg = -currentPitch * 57.2957795f;
-
     skillTimer += deltaTime;
 
     if (skillTimer <= 0.05f)
@@ -99,28 +113,32 @@ void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float 
         {
             isBulletActive = true;
             shootYaw       = currentYaw;
-            shootPitch     = currentPitch - 75.0f; 
+            shootPitch = currentPitch + (27.0f * 3.14159265f / 180.0f);
             bulletDistance = 0.0f;
 
-            const float HAND_OFFSET_X = 16.25f; 
-            const float HAND_OFFSET_Y = 0.0f; 
-            const float HAND_OFFSET_Z = -5.0f;  
+            // 1. Define the pivot and barrel offsets (scaled)
+            const float ARM_OFFSET_X = 16.25f * modelScale; 
+            const float PIVOT_Y      = 20.0f * modelScale; 
+            const float BARREL_Z     = -10.0f * modelScale;  
 
-            float spawnDist = -BULLET_SPAWN_Z; 
-            
-            float baseY = (kingerY + 18.7f) + hoverOffset + skillBodyYOffset + HAND_OFFSET_Y + BULLET_BARREL_Y_BIAS;
+            // 2. Apply pitch rotation so the barrel tip moves up/down when aiming
+            float localY = PIVOT_Y + (BARREL_Z * std::sin(shootPitch));
+            float localZ = BARREL_Z * std::cos(shootPitch);
 
-            float worldOffsetX = (HAND_OFFSET_X * std::cos(shootYaw)) + (HAND_OFFSET_Z * -std::sin(shootYaw));
-            float worldOffsetZ = (HAND_OFFSET_X * -std::sin(shootYaw)) + (HAND_OFFSET_Z * -std::cos(shootYaw));
+            // 3. Rotate these scaled offsets into world space using a 2D rotation matrix based on currentYaw
+            float worldOffsetX = (ARM_OFFSET_X * std::cos(currentYaw)) + (localZ * std::sin(currentYaw));
+            float worldOffsetZ = (-ARM_OFFSET_X * std::sin(currentYaw)) + (localZ * std::cos(currentYaw));
 
-            bulletPosX = kingerX + worldOffsetX + spawnDist * (-std::sin(shootYaw) * std::cos(shootPitch));
-            bulletPosY = baseY   + spawnDist * (-std::sin(shootPitch));
-            bulletPosZ = kingerZ + worldOffsetZ + spawnDist * (-std::cos(shootYaw) * std::cos(shootPitch));
+            // 4. Add the result to the player's world position
+            bulletStartX = kingerX + worldOffsetX;
+            bulletStartY = (kingerY * modelScale) + hoverOffset + skillBodyYOffset + localY + BULLET_BARREL_Y_BIAS;
+            bulletStartZ = kingerZ + worldOffsetZ;
             
-            bulletStartX = bulletPosX;
-            bulletStartY = bulletPosY;
-            bulletStartZ = bulletPosZ;
+            bulletPosX = bulletStartX;
+            bulletPosY = bulletStartY;
+            bulletPosZ = bulletStartZ;
             
+            // 4. Calculate the trajectory direction
             bulletDirX = -std::sin(shootYaw) * std::cos(shootPitch);
             bulletDirY = -std::sin(shootPitch);
             bulletDirZ = -std::cos(shootYaw) * std::cos(shootPitch);
@@ -161,6 +179,10 @@ void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float 
     }
 }
 
+/**
+ * Updates the idle animation timer, hover heights, and cloth sway angles.
+ * deltaTime The elapsed frame time in seconds.
+ */
 void KingerAnimation::updateIdleState(float deltaTime)
 {
     idleTimer += deltaTime;
@@ -183,6 +205,9 @@ void KingerAnimation::updateIdleState(float deltaTime)
     armRotation = (4.0f * std::sin(idleTimer * 1.8f)) * armSwayWeight;
 }
 
+/**
+ * Triggers the rolling movement ability, resetting the phase and squash states.
+ */
 void KingerAnimation::castRollSkill()
 {
     if ( isRolling || isReloading || isHealing) return;
@@ -197,6 +222,10 @@ void KingerAnimation::castRollSkill()
     }
 }
 
+/**
+ * Updates the roll timeline, phases, and squash factors.
+ * deltaTime The elapsed frame time in seconds.
+ */
 void KingerAnimation::updateRollState(float deltaTime)
 {
     if (!isRolling) return;
@@ -236,6 +265,9 @@ void KingerAnimation::updateRollState(float deltaTime)
     }
 }
 
+/**
+ * Triggers the gun reload animation timeline.
+ */
 void KingerAnimation::castReload()
 {
     if (isReloading || isRolling || isHealing || isHurt) return;
@@ -249,6 +281,10 @@ void KingerAnimation::castReload()
     rightArmReloadYaw = 0.0f;
 }
 
+/**
+ * Updates the reload timeline, animating left/right arms dynamically.
+ * deltaTime The elapsed frame time in seconds.
+ */
 void KingerAnimation::updateReloadState(float deltaTime)
 {
     if (!isReloading) return;
@@ -298,6 +334,11 @@ void KingerAnimation::updateReloadState(float deltaTime)
     }
 }
 
+/**
+ * Triggers the butterfly healing skill, reducing butterfly charges and restoring health.
+ * currentHealth Reference to the character's current health.
+ * maxHealth The maximum health threshold.
+ */
 void KingerAnimation::castHealSkill(int& currentHealth, int maxHealth)
 {
     if (isHealing || isRolling || butterflyCharges <= 0 || isHurt) return;
@@ -311,6 +352,10 @@ void KingerAnimation::castHealSkill(int& currentHealth, int maxHealth)
     if (currentHealth > maxHealth) currentHealth = maxHealth;
 }
 
+/**
+ * Updates the heal timeline, raising the left arm and spawning a butterfly.
+ * deltaTime The elapsed frame time in seconds.
+ */
 void KingerAnimation::updateHealState(float deltaTime)
 {
     if (!isHealing) return;
@@ -338,6 +383,10 @@ void KingerAnimation::updateHealState(float deltaTime)
     }
 }
 
+/**
+ * Updates the damage stun flashing timer.
+ * deltaTime The elapsed frame time in seconds.
+ */
 void KingerAnimation::updateHurtState(float deltaTime)
 {
     if (!isHurt) return;
@@ -350,6 +399,9 @@ void KingerAnimation::updateHurtState(float deltaTime)
     }
 }
 
+/**
+ * Activates the hurt state, immediately interrupting any ongoing cast/reloads.
+ */
 void KingerAnimation::triggerHurt()
 {
     isHurt = true;
@@ -384,6 +436,10 @@ void KingerAnimation::triggerHurt()
     leftArmHealPitch = 0.0f;
 }
 
+/**
+ * Updates the death collapse timer.
+ * deltaTime The elapsed frame time in seconds.
+ */
 void KingerAnimation::updateDeathState(float deltaTime)
 {
     if (!isDead) return;
@@ -395,6 +451,9 @@ void KingerAnimation::updateDeathState(float deltaTime)
     }
 }
 
+/**
+ * Activates the death state, immediately interrupting any active skills.
+ */
 void KingerAnimation::triggerDeath()
 {
     isDead = true;

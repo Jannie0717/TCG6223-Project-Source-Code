@@ -58,9 +58,19 @@ static void drawSolidCubeFallback(float size)
     glVertex3f( h, -h,  h);
     glVertex3f(-h, -h,  h);
 
+    // Top
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-h, h,  h);
+    glVertex3f( h, h,  h);
+    glVertex3f( h, h, -h);
+    glVertex3f(-h, h, -h);
+
     glEnd();
 }
 
+/**
+ * Constructor that resets model loading flags, dimensions, properties, and health parameters.
+ */
 Kinger::Kinger()
 {
     headLoaded = false;
@@ -73,6 +83,9 @@ Kinger::Kinger()
     rightHandwGunLoaded = false;
     bucketLoaded = false;
     bucketHandleLoaded = false;
+
+    currentHealth = 100;
+    maxHealth = 100;
 
     posX      = 0.0f;
     posY      = -18.7f; 
@@ -90,14 +103,20 @@ Kinger::Kinger()
     uniformScale = 1.0f;
 }
 
+/**
+ * Sets the uniform scale of Kinger.
+ * scale The scaling factor to apply uniformly.
+ */
 void Kinger::setScale(float scale)
 {
     uniformScale = scale;
 }
 
+/**
+ * Initiates the jump movement by applying vertical velocity.
+ */
 void Kinger::jump()
 {
-
     if (animation.isHealing || animation.isDead) return;
 
     if (isGrounded)
@@ -108,9 +127,13 @@ void Kinger::jump()
     }
 }
 
+/**
+ * Reduces health pool by a given amount and triggers hurt/death sequences.
+ * amount Amount of damage to apply.
+ */
 void Kinger::takeDamage(int amount)
 {
-    if (animation.isHurt || animation.isRolling || animation.isDead) return; // Prevent damage while hurt, rolling, or dead
+    if (animation.isHurt || animation.isRolling || animation.isDead) return;
 
     currentHealth -= amount;
     if (currentHealth <= 0)
@@ -124,6 +147,9 @@ void Kinger::takeDamage(int amount)
     }
 }
 
+/**
+ * Resets health, velocities, coordinates, and transitions to normal idle alive state.
+ */
 void Kinger::rebirth()
 {
     currentHealth = maxHealth;
@@ -139,7 +165,13 @@ void Kinger::rebirth()
     animation.deathTimer = 0.0f;
 }
 
-
+/**
+ * Updates physics, camera aiming orientations, input movement, and animation states.
+ * deltaTime The elapsed frame time in seconds.
+ * cameraYaw Current camera orientation yaw angle.
+ * cameraPitch Current camera orientation pitch angle.
+ * keyStates Array tracking keyboard/button inputs.
+ */
 void Kinger::update(float deltaTime, float cameraYaw, float cameraPitch, const bool* keyStates)
 {
     if (animation.isDead)
@@ -174,73 +206,71 @@ void Kinger::update(float deltaTime, float cameraYaw, float cameraPitch, const b
 
     animation.updateIdleState(deltaTime);
 
-    animation.updateSkillState(deltaTime, cameraYaw, cameraPitch, posX, posY, posZ);
+    animation.updateSkillState(deltaTime, cameraYaw, cameraPitch, posX, posY, posZ, uniformScale);
     animation.updateRollState(deltaTime);
     animation.updateReloadState(deltaTime);
     animation.updateHealState(deltaTime);
     animation.updateHurtState(deltaTime);
 
-
     if (!animation.isHealing)
     {
-    float fwd = 0.0f;
-    float rgt = 0.0f;
+        float fwd = 0.0f;
+        float rgt = 0.0f;
 
-    if (keyStates['w'] || keyStates['W']) fwd += 1.0f;
-    if (keyStates['s'] || keyStates['S']) fwd -= 1.0f;
-    if (keyStates['d'] || keyStates['D']) rgt += 1.0f;
-    if (keyStates['a'] || keyStates['A']) rgt -= 1.0f;
+        if (keyStates['w'] || keyStates['W']) fwd += 1.0f;
+        if (keyStates['s'] || keyStates['S']) fwd -= 1.0f;
+        if (keyStates['d'] || keyStates['D']) rgt += 1.0f;
+        if (keyStates['a'] || keyStates['A']) rgt -= 1.0f;
 
-    float magnitude = std::sqrt(fwd * fwd + rgt * rgt);
-    if (magnitude > 0.0f)
-    {
-        float KINGER_INTERNAL_SPEED = 45.0f; 
-
-        if (animation.isRolling)
+        float magnitude = std::sqrt(fwd * fwd + rgt * rgt);
+        if (magnitude > 0.0f)
         {
-            const float ROLL_SPEED_MULTIPLIER = 2.5f;
-            KINGER_INTERNAL_SPEED *= ROLL_SPEED_MULTIPLIER;
+            float KINGER_INTERNAL_SPEED = 45.0f; 
+
+            if (animation.isRolling)
+            {
+                const float ROLL_SPEED_MULTIPLIER = 2.5f;
+                KINGER_INTERNAL_SPEED *= ROLL_SPEED_MULTIPLIER;
+            }
+
+            if (animation.isHurt)
+            {
+                const float HURT_SPEED_MULTIPLIER = 0.5f;
+                KINGER_INTERNAL_SPEED *= HURT_SPEED_MULTIPLIER;
+            }
+
+            float step = KINGER_INTERNAL_SPEED * deltaTime;
+
+            float normFwd = fwd / magnitude;
+            float normRgt = rgt / magnitude;
+
+            posX += step * (normFwd * -std::sin(cameraYaw) + normRgt * std::cos(cameraYaw));
+            posZ += step * (normFwd * -std::cos(cameraYaw) + normRgt * -std::sin(cameraYaw));
         }
 
-        if (animation.isHurt)
-        {
-            const float HURT_SPEED_MULTIPLIER = 0.5f;
-            KINGER_INTERNAL_SPEED *= HURT_SPEED_MULTIPLIER;
+        if (keyStates['w'] || keyStates['W']) {
+            targetLeanPitch = MAX_LEAN_ANGLE;
+        } else if (keyStates['s'] || keyStates['S']) {
+            targetLeanPitch = -MAX_LEAN_ANGLE;
+        } else {
+            targetLeanPitch = 0.0f;
         }
 
-        float step = KINGER_INTERNAL_SPEED * deltaTime;
+        if (keyStates['a'] || keyStates['A']) {
+            targetLeanRoll = -MAX_LEAN_ANGLE;
+        } else if (keyStates['d'] || keyStates['D']) {
+            targetLeanRoll = MAX_LEAN_ANGLE;
+        } else {
+            targetLeanRoll = 0.0f;
+        }
 
-        float normFwd = fwd / magnitude;
-        float normRgt = rgt / magnitude;
-
-        posX += step * (normFwd * -std::sin(cameraYaw) + normRgt * std::cos(cameraYaw));
-        posZ += step * (normFwd * -std::cos(cameraYaw) + normRgt * -std::sin(cameraYaw));
-    }
-
-    if (keyStates['w'] || keyStates['W']) {
-        targetLeanPitch = MAX_LEAN_ANGLE;
-    } else if (keyStates['s'] || keyStates['S']) {
-        targetLeanPitch = -MAX_LEAN_ANGLE;
-    } else {
-        targetLeanPitch = 0.0f;
-    }
-
-    if (keyStates['a'] || keyStates['A']) {
-        targetLeanRoll = -MAX_LEAN_ANGLE;
-    } else if (keyStates['d'] || keyStates['D']) {
-        targetLeanRoll = MAX_LEAN_ANGLE;
-    } else {
-        targetLeanRoll = 0.0f;
-    }
-
-    const float LEAN_SPEED = 3.0f;
-    currentLeanPitch += (targetLeanPitch - currentLeanPitch) * LEAN_SPEED * deltaTime;
-    currentLeanRoll  += (targetLeanRoll  - currentLeanRoll)  * LEAN_SPEED * deltaTime;
+        const float LEAN_SPEED = 3.0f;
+        currentLeanPitch += (targetLeanPitch - currentLeanPitch) * LEAN_SPEED * deltaTime;
+        currentLeanRoll  += (targetLeanRoll  - currentLeanRoll)  * LEAN_SPEED * deltaTime;
     }
 
     // Apply gravity constantly
     velocityY += -60.0f * deltaTime;
-
     posY += velocityY * deltaTime;
 
     if (posY <= -18.7f)
@@ -257,17 +287,31 @@ void Kinger::update(float deltaTime, float cameraYaw, float cameraPitch, const b
     jumpScaleY += (1.0f - jumpScaleY) * 10.0f * deltaTime;
 }
 
+/**
+ * Shifts player position along the forward orientation vector.
+ * speed Movement speed multiplier.
+ * cameraYaw Reference direction angle.
+ */
 void Kinger::moveForward(float speed, float cameraYaw)
 {
     posX -= speed * std::sin(cameraYaw);
     posZ -= speed * std::cos(cameraYaw);
 }
 
+/**
+ * Shifts player position along the lateral side orientation vector.
+ * speed Movement speed multiplier.
+ * cameraYaw Reference direction angle.
+ */
 void Kinger::moveRight(float speed, float cameraYaw)
 {
     posX += speed * std::cos(cameraYaw);
     posZ -= speed * std::sin(cameraYaw);
 }
+
+// ==========================================
+// OBJ File Loaders
+// ==========================================
 
 bool Kinger::loadHead(const std::string& filePath)
 {
@@ -329,10 +373,17 @@ bool Kinger::loadBucketHandle(const std::string& filePath)
     return bucketHandleLoaded;
 }
 
+// ==========================================
+// Rendering Methods for Individual Parts
+// ==========================================
+
+/**
+ * Render Kinger's main white chess piece head.
+ */
 void Kinger::drawHead() const
 {
-    if (!headLoaded)
-        return;
+    if (!headLoaded) return;
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, headTextureID);
 
@@ -354,10 +405,13 @@ void Kinger::drawHead() const
     glDisable(GL_TEXTURE_2D);
 }
 
+/**
+ * Render Kinger's top headpiece crown.
+ */
 void Kinger::drawHeadPiece() const
 {
-    if (!headPieceLoaded)
-        return;
+    if (!headPieceLoaded) return;
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, headPieceTextureID);
 
@@ -378,10 +432,12 @@ void Kinger::drawHeadPiece() const
     glDisable(GL_TEXTURE_2D);
 }
 
+/**
+ * Render Kinger's left eye.
+ */
 void Kinger::drawLeftEye() const
 {
-    if (!leftEyeLoaded)
-        return;
+    if (!leftEyeLoaded) return;
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, leftEyeTextureID);
@@ -390,7 +446,7 @@ void Kinger::drawLeftEye() const
     glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset, animation.skillBodyZOffset);
     glTranslatef(6.0f, 28.0f, 0.0f);
     glScalef(8.0f, 8.0f, 8.0f);
-    glRotatef(180,1,0,0);
+    glRotatef(180, 1, 0, 0);
     glColor3ub(255, 255, 255);
 
     glDisable(GL_CULL_FACE);
@@ -403,17 +459,19 @@ void Kinger::drawLeftEye() const
     glDisable(GL_TEXTURE_2D);
 }
 
+/**
+ * Render Kinger's right eye.
+ */
 void Kinger::drawRightEyeN() const
 {
-    if (!rightEyeNLoaded)
-        return;
+    if (!rightEyeNLoaded) return;
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, rightEyeNTextureID);
 
     glPushMatrix();
     glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset, animation.skillBodyZOffset);
-    glRotatef(180,1,0,0);
+    glRotatef(180, 1, 0, 0);
     glTranslatef(-7.0f, -32.0f, 2.0f);
     glScalef(7.5f, 7.5f, 7.5f);
 
@@ -429,10 +487,12 @@ void Kinger::drawRightEyeN() const
     glDisable(GL_TEXTURE_2D);
 }
 
+/**
+ * Render Kinger's torso body connector.
+ */
 void Kinger::drawBody() const
 {
-    if (!bodyLoaded)
-        return;
+    if (!bodyLoaded) return;
 
     glPushMatrix();
     glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset, animation.skillBodyZOffset);
@@ -449,10 +509,12 @@ void Kinger::drawBody() const
     glPopMatrix();
 }
 
+/**
+ * Render Kinger's dynamic flowing cape cloth.
+ */
 void Kinger::drawCloth() const
 {
-    if (!clothLoaded)
-        return;
+    if (!clothLoaded) return;
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, clothTextureID);
@@ -464,7 +526,7 @@ void Kinger::drawCloth() const
     glScalef(7.5f, 8.0f, 7.0f);
     //glColor3ub(128, 0, 128);
     glColor3f(1.0f, 1.0f, 1.0f);
-    glRotatef(180,0,1,0);
+    glRotatef(180, 0, 1, 0);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
@@ -476,19 +538,23 @@ void Kinger::drawCloth() const
     glDisable(GL_TEXTURE_2D);
 }
 
+/**
+ * Render Kinger's left hand, managing reload, shooting, and heal rotations.
+ */
 void Kinger::drawLeftHand() const
 {
-    if (!leftHandLoaded)
-        return;
+    if (!leftHandLoaded) return;
 
     glPushMatrix();
-    glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset + animation.leftArmReloadYOffset, animation.skillBodyZOffset); //for animation y axis
+    glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset + animation.leftArmReloadYOffset, animation.skillBodyZOffset);
 
     glRotatef(animation.leftArmReloadYaw, 0.0f, 1.0f, 0.0f);
     glRotatef(animation.leftArmReloadPitch, 1.0f, 0.0f, 0.0f);
 
+    // Apply active healing gesture rotations
     glRotatef(animation.leftArmHealPitch, 1.0f, 0.0f, 0.0f);
 
+    // Blend arm aiming vertical angles based on aim direction
     float visualPitch = aimPitch;
     if (visualPitch < -0.7f) visualPitch = -0.7f;
     if (visualPitch >  1.2f) visualPitch =  1.2f;
@@ -500,6 +566,7 @@ void Kinger::drawLeftHand() const
 
     glRotatef(gunAimPitch * aimBlend, 1.0f, 0.0f, 0.0f);
 
+    // Apply basic idle sway
     glRotatef(-animation.armRotation, 1.0f, 0.0f, 0.0f); 
     //glRotatef(180,0,0,1); //initial position rotation
     glRotatef(150,0,0,1); //adjust position rotation
@@ -507,7 +574,6 @@ void Kinger::drawLeftHand() const
     glTranslatef(0.0f, -18.0f, 0.0f);
     glScalef(7.0f, 7.5f, 7.0f);
     glColor3ub(255, 255, 255);
-
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
@@ -518,10 +584,12 @@ void Kinger::drawLeftHand() const
     glPopMatrix();
 }
 
+/**
+ * Render Kinger's right hand with weapon, applying recoil, reload, and idle sway.
+ */
 void Kinger::drawRightHandwGun() const
 {
-    if (!rightHandwGunLoaded)
-        return;
+    if (!rightHandwGunLoaded) return;
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, rightHandwGunTextureID);
@@ -529,11 +597,14 @@ void Kinger::drawRightHandwGun() const
     glPushMatrix();
     glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset, animation.skillBodyZOffset);
 
+    // Apply reload rotations
     glRotatef(animation.rightArmReloadYaw, 0.0f, 1.0f, 0.0f);
     glRotatef(animation.rightArmReloadPitch, 1.0f, 0.0f, 0.0f);
 
+    // Apply shooting recoil translation
     glTranslatef(0.0f, 0.0f, animation.armRecoilOffset);
 
+    // Apply camera vertical aiming pitch + idle sway rotation
     float visualPitch = aimPitch;
     if (visualPitch < -0.7f) visualPitch = -0.7f;
     if (visualPitch >  1.2f) visualPitch =  1.2f;
@@ -541,8 +612,8 @@ void Kinger::drawRightHandwGun() const
     float finalArmPitch = (-visualPitch * 57.2957795f) + animation.armRotation;
     glRotatef(finalArmPitch, 1.0f, 0.0f, 0.0f);
 
-    glRotatef(180,1,0,0);
-    glRotatef(180,0,0,1);
+    glRotatef(180, 1, 0, 0);
+    glRotatef(180, 0, 0, 1);
     glTranslatef(0.0f, -18.0f, -5.0f);
     glScalef(7.0f, 7.5f, 7.0f);
     glColor3ub(255, 255, 255);
@@ -557,18 +628,18 @@ void Kinger::drawRightHandwGun() const
     glDisable(GL_TEXTURE_2D);
 }
 
+/**
+ * Render the bucket item.
+ */
 void Kinger::drawBucket() const
 {
-    if (!bucketLoaded)
-        return;
+    if (!bucketLoaded) return;
 
     glPushMatrix();
     glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset, animation.skillBodyZOffset);
-    glRotatef(-25,1,0,0);
+    glRotatef(-25, 1, 0, 0);
     glTranslatef(8.3f, 4.0f, 4.0f);
-
-    glRotatef(180,0,0,1);
-
+    glRotatef(180, 0, 0, 1);
     glScalef(0.6f, 0.4f, 0.6f);
     glColor3ub(244, 244, 244);
 
@@ -581,10 +652,12 @@ void Kinger::drawBucket() const
     glPopMatrix();
 }
 
+/**
+ * Render the bucket handle connector.
+ */
 void Kinger::drawBucketHandle() const
 {
-    if (!bucketHandleLoaded)
-        return;
+    if (!bucketHandleLoaded) return;
 
     glPushMatrix();
     glTranslatef(0.0f, animation.hoverOffset + animation.skillBodyYOffset, animation.skillBodyZOffset);
@@ -604,10 +677,12 @@ void Kinger::drawBucketHandle() const
     glPopMatrix();
 }
 
+/**
+ * Render the active bullet projectile particle and tracer path.
+ */
 void Kinger::drawBullet() const
 {
-    if (!animation.isBulletActive)
-        return;
+    if (!animation.isBulletActive) return;
 
     glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 
@@ -615,11 +690,11 @@ void Kinger::drawBullet() const
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_LINE_SMOOTH);
     glLineWidth(3.0f);
-
     glDisable(GL_TEXTURE_2D);
 
     glColor4f(1.0f, 0.8f, 0.0f, 0.6f);
 
+    // Draw tracer line
     glBegin(GL_LINES);
         glVertex3f(animation.bulletStartX, animation.bulletStartY, animation.bulletStartZ);
         glVertex3f(animation.bulletPosX, animation.bulletPosY, animation.bulletPosZ);
@@ -628,17 +703,14 @@ void Kinger::drawBullet() const
     glPopAttrib();
 
     glPushMatrix();
-
     glTranslatef(animation.bulletPosX, animation.bulletPosY, animation.bulletPosZ);
-
     glDisable(GL_TEXTURE_2D);
-
     glColor3ub(255, 200, 0);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
+    
     static GLUquadricObj* bulletQuadric = NULL;
-
     if (bulletQuadric == NULL)
     {
         bulletQuadric = gluNewQuadric();
@@ -653,14 +725,17 @@ void Kinger::drawBullet() const
     glPopMatrix();
 }
 
+/**
+ * Renders the entire hierarchical character structure, combining limbs, bodies, and items.
+ */
 void Kinger::draw() const
 {
     glPushMatrix();
 
+    // Position player in the world
     glTranslatef(posX, posY + 18.7f, posZ);
 
     const float RAD_TO_DEG = 57.2957795f;
-
     const float MODEL_FACING_OFFSET = 3.14159265f;
     glRotatef((facingYaw + MODEL_FACING_OFFSET) * RAD_TO_DEG, 0.0f, 1.0f, 0.0f);
 
@@ -707,6 +782,7 @@ void Kinger::draw() const
             glColor3f(1.0f, 0.0f, 0.0f);
         }
 
+        // Render as checker roll ball if rolling ability is active
         if (animation.showBallModel)
         {
             glPushMatrix();
@@ -720,8 +796,10 @@ void Kinger::draw() const
         {
             glPushMatrix();
 
+            // Apply squash and stretch scaling
             glScalef(1.0f, jumpScaleY * animation.rollSquashY, 1.0f);
 
+            // Apply tilt lean based on movement direction
             glRotatef(currentLeanPitch, 1.0f, 0.0f, 0.0f);
 
             drawHead();
@@ -754,22 +832,25 @@ void Kinger::draw() const
 
     glPopMatrix();
 
+    // Render active butterfly heal sequence
     if (animation.isHealing)
     {
         glPushMatrix();
 
-        const float HAND_OFFSET_X = -12.0f;
-        const float HAND_OFFSET_Y = 15.0f;
-        const float HAND_OFFSET_Z = -15.0f; 
+        // Apply uniformScale to perfectly shrink the path offsets along with the character model
+        const float HAND_OFFSET_X = -20.0f * uniformScale;
+        const float HAND_OFFSET_Y = 15.0f * uniformScale;
+        const float HAND_OFFSET_Z = -15.0f * uniformScale; 
 
-        float hx = (HAND_OFFSET_X * std::cos(facingYaw)) + (HAND_OFFSET_Z * -std::sin(facingYaw));
-        float hz = (HAND_OFFSET_X * -std::sin(facingYaw)) + (HAND_OFFSET_Z * -std::cos(facingYaw));
+        // Apply 2D rotation matrix based on horizontal facing direction
+        float hx = (HAND_OFFSET_X * std::cos(facingYaw)) + (HAND_OFFSET_Z * std::sin(facingYaw));
+        float hz = (-HAND_OFFSET_X * std::sin(facingYaw)) + (HAND_OFFSET_Z * std::cos(facingYaw));
 
         float handWorldX = posX + hx;
         float handWorldY = posY + 18.7f + HAND_OFFSET_Y;
         float handWorldZ = posZ + hz;
 
-        const float BUCKET_HEIGHT_OFFSET = 25.0f;
+        const float BUCKET_HEIGHT_OFFSET = 25.0f * uniformScale;
         float bucketWorldX = posX;
         float bucketWorldY = posY + 18.7f + BUCKET_HEIGHT_OFFSET;
         float bucketWorldZ = posZ;
@@ -813,6 +894,7 @@ void Kinger::draw() const
         glPopMatrix();
         glPopMatrix();
 
+        // Render cross particles orbiting around Kinger's head/bucket
         if (animation.healTimer >= 1.5f)
         {
             glPushMatrix();
@@ -832,7 +914,6 @@ void Kinger::draw() const
                 float orbitZ = std::cos(offsetTimer * 10.0f + i) * 3.0f;
 
                 glTranslatef(orbitX, height, orbitZ);
-
                 glRotatef(offsetTimer * 300.0f, 0.0f, 1.0f, 0.0f);
 
                 float crossScale = 1.0f - (height / 10.0f);
@@ -860,6 +941,7 @@ void Kinger::draw() const
         glPopMatrix();
     }
 
+    // Render gun bullet particles slightly offset from model center
     glTranslatef(0.0f, 3.0f, 0.0f);
     drawBullet();
 }

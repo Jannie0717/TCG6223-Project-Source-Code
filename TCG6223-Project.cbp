@@ -49,10 +49,14 @@
 		<Unit filename="CNAmain.hpp" />
 		<Unit filename="Caine.cpp" />
 		<Unit filename="Caine.hpp" />
+		<Unit filename="CaineAnimation.cpp" />
+		<Unit filename="CaineAnimation.hpp" />
 		<Unit filename="Environment.cpp" />
 		<Unit filename="Environment.hpp" />
 		<Unit filename="Gloinks.cpp" />
 		<Unit filename="Gloinks.hpp" />
+		<Unit filename="GloinksAnimation.cpp" />
+		<Unit filename="GloinksAnimation.hpp" />
 		<Unit filename="Kinger.cpp" />
 		<Unit filename="Kinger.hpp" />
 		<Unit filename="KingerAnimation.cpp" />

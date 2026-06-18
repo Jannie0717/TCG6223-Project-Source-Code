@@ -269,6 +269,38 @@ void myKeyboardFunc(unsigned char key, int x, int y)
         myvirtualworld.kinger.takeDamage(100);
         break;
 
+    // Caine Hand Animation Trigger & Gloink Hurt Triggers
+    case '1':
+        myvirtualworld.gloinks.hurtGloink(0);
+        break;
+    case '2':
+        myvirtualworld.gloinks.hurtGloink(1);
+        break;
+    case '3':
+        myvirtualworld.gloinks.hurtGloink(2);
+        break;
+    case '4':
+        myvirtualworld.gloinks.hurtGloink(3);
+        break;
+    case '5':
+        myvirtualworld.gloinks.hurtGloink(4);
+        break;
+    case '6':
+        myvirtualworld.gloinks.hurtGloink(5);
+        break;
+    case '7':
+        myvirtualworld.caine.animation.triggerShootingState();
+        break;
+    case '8':
+        myvirtualworld.caine.animation.toggleLayDown();
+        break;
+    case '9':
+        myvirtualworld.caine.animation.toggleLeanForward();
+        break;
+    case '0':
+        myvirtualworld.caine.triggerDeath();
+        break;
+
     case 27: exit(1); break; // ESC
  }
  glutPostRedisplay();
@@ -389,7 +421,7 @@ void myDataInit()
  viewer.upY     = 1.0;
  viewer.upZ     = 0.0;
  viewer.zNear   = 0.1;
- viewer.zFar    = 2000.0;
+ viewer.zFar    = 10000.0;
  viewer.fieldOfView = 60.0;
  viewer.aspectRatio = static_cast<GLdouble> (window.width) / window.height;
 

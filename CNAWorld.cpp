@@ -497,7 +497,13 @@ void MyVirtualWorld::init()
     // Example of scaling Kinger (makes him 1.5x larger)
     kinger.setScale(0.5f);
     //caine.setScale();
+
+    caine.posX = 0.0f;
+    caine.posY = 0.0f;
+    caine.posZ = -120.0f;
     
+
+    gloinks.initGloinks();
 
     //==================================================================
     // Notes: These two must put add the end of this function.
@@ -515,8 +521,11 @@ void MyVirtualWorld::draw()
 
     /*Characters*/
     kinger.draw();
-    //gloinks.draw();
+    
+    gloinks.draw();
+    
     caine.draw();
+    
     //butterfly.draw();
     //kingerRoll.draw();
 }
@@ -543,6 +552,8 @@ void MyVirtualWorld::tickTime(float cameraYaw, float cameraPitch, const bool* ke
         }
 
         kinger.update(deltaTime, cameraYaw, cameraPitch, keyStates);
+        caine.update(deltaTime);
+        gloinks.updateGloinks(deltaTime);
     }
     // -------------------------------------------------------------------------
 
