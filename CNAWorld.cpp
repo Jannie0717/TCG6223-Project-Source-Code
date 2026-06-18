@@ -497,7 +497,13 @@ void MyVirtualWorld::init()
     // Example of scaling Kinger (makes him 1.5x larger)
     kinger.setScale(0.5f);
     //caine.setScale();
+
+    caine.posX = 0.0f;
+    caine.posY = 0.0f;
+    caine.posZ = -120.0f;
     
+
+    gloinks.initGloinks();
 
     //==================================================================
     // Notes: These two must put add the end of this function.
@@ -505,7 +511,7 @@ void MyVirtualWorld::init()
     setupEnvironmentLighting();
 
     /*Background Music*/
-    audioManager.playBackgroundMusic("Audio\\BGM\\[Jigoku Shoujo OST] Ake ni Somaru - The Faustian (128k).wav");
+    //audioManager.playBackgroundMusic("Audio\\BGM\\[Jigoku Shoujo OST] Ake ni Somaru - The Faustian (128k).wav");
 }
 
 void MyVirtualWorld::draw()
@@ -515,41 +521,39 @@ void MyVirtualWorld::draw()
 
     /*Characters*/
     kinger.draw();
-    //gloinks.draw();
-    //caine.draw();
+    
+    gloinks.draw();
+    
+    caine.draw();
+    
     //butterfly.draw();
     //kingerRoll.draw();
 }
 
 void MyVirtualWorld::tickTime(float cameraYaw, float cameraPitch, const bool* keyStates)
 {
-    // --- Real delta-time clock for Kinger (matches environment.tickTime()) ---
     static int previousKingerTime = -1;
 
     int currentKingerTime = glutGet(GLUT_ELAPSED_TIME);
 
-    // On the very first call, record the time and skip the update
-    // so we do not pass an undefined delta to kinger.update().
     if (previousKingerTime < 0)
     {
         previousKingerTime = currentKingerTime;
     }
     else
     {
-        // Convert milliseconds to seconds
         float deltaTime = (currentKingerTime - previousKingerTime) / 1000.0f;
         previousKingerTime = currentKingerTime;
 
-        // Clamp to avoid a sudden large jump if the window was frozen or minimised
         const float MAX_DELTA_TIME = 0.1f;
         if (deltaTime > MAX_DELTA_TIME)
         {
             deltaTime = MAX_DELTA_TIME;
         }
 
-        // Pass cameraYaw + cameraPitch + keyStates so kinger.update() can evaluate
-        // continuous multi-key movement with diagonal normalisation and aiming.
         kinger.update(deltaTime, cameraYaw, cameraPitch, keyStates);
+        caine.update(deltaTime);
+        gloinks.updateGloinks(deltaTime);
     }
     // -------------------------------------------------------------------------
 

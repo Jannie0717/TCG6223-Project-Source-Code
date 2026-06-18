@@ -8,9 +8,15 @@
 namespace ProjectKinger
 {
 
+/**
+ * Kinger
+ * Represents the main player character Kinger, managing individual model parts,
+ * textures, movements, health status, and delegating to KingerAnimation.
+ */
 class Kinger
 {
 private:
+    // OBJ Model Parts
     ObjModel headModel;
     ObjModel headPieceModel;
     ObjModel leftEyeModel;
@@ -22,8 +28,7 @@ private:
     ObjModel bucketModel;
     ObjModel bucketHandleModel;
 
-    //ObjModel Model;
-
+    // Loading Flags
     bool headLoaded;
     bool headPieceLoaded;
     bool leftEyeLoaded;
@@ -35,56 +40,82 @@ private:
     bool bucketLoaded;
     bool bucketHandleLoaded;
 
-    //bool Loaded;
-
 public:
+    /**
+     * Constructor that resets model loading flags, dimensions, properties, and health parameters.
+     */
     Kinger();
-    KingerAnimation animation;
-    
-    // Task 1: Health Variables
-    int currentHealth = 100;
-    int maxHealth = 100;
 
-    // deltaTime  : seconds since last frame (for frame-rate-independent speed).
-    // cameraYaw  : current horizontal camera angle in radians.
-    // cameraPitch: current vertical camera angle in radians.
-    // keyStates  : pointer to the 256-element boolean key-state array from CNAmain.
+    KingerAnimation animation; // State machine container holding all active animations
+
+    int currentHealth; // Current health pool value
+    int maxHealth;     // Maximum allowable health capacity
+
+    /**
+     * Updates physics, camera aiming orientations, input movement, and animation states.
+     * deltaTime The elapsed frame time in seconds.
+     * cameraYaw Current camera orientation yaw angle.
+     * cameraPitch Current camera orientation pitch angle.
+     * keyStates Array tracking keyboard/button inputs.
+     */
     void update(float deltaTime, float cameraYaw, float cameraPitch, const bool* keyStates);
     
-    // Task 1: Add Jump Physics
-    float velocityY;
-    bool isGrounded;
-    float jumpScaleY; // Used to stretch the character when jumping
+    float velocityY;    // Vertical speed velocity tracking jumping and gravity
+    bool isGrounded;    // Flag indicating if Kinger is currently touching the floor
+    float jumpScaleY;   // Squash and stretch scaling factor applied during landing/jumping impact
+    
+    /**
+     * Initiates the jump movement by applying vertical velocity.
+     */
     void jump();
 
-    float aimPitch;
+    /**
+     * Reduces health pool by a given amount and triggers hurt/death sequences.
+     * amount Amount of damage to apply.
+     */
+    void takeDamage(int amount);
 
-    // ── World-space position and facing ──────────────────────────────────────
-    // posX / posZ  : horizontal position in the arena.
-    // posY         : base height used as the camera look-at target (-18.7 = ground).
-    // facingYaw    : character's own facing angle in radians (updated by movement).
-    float posX;
-    float posY;
-    float posZ;
-    float facingYaw;
+    /**
+     * Resets health, velocities, coordinates, and transitions to normal idle alive state.
+     */
+    void rebirth();
 
-    // ── Task 1: Add Lean Variables ───────────────────────────────────────────
-    static constexpr float MAX_LEAN_ANGLE = 15.0f; // Maximum tilt degree
-    float targetLeanPitch;
-    float currentLeanPitch;
-    float targetLeanRoll;
-    float currentLeanRoll;
+    float aimPitch; // Visual alignment pitch matching target camera direction
 
-    float uniformScale;
+    float posX;     // Current X coordinate of the player in world space
+    float posY;     // Current Y coordinate of the player in world space
+    float posZ;     // Current Z coordinate of the player in world space
+    float facingYaw; // Horizontal rotation facing direction in world space
+
+    static constexpr float MAX_LEAN_ANGLE = 15.0f; // Maximum lean rotation tilt limit
+    float targetLeanPitch;  // Target pitch tilting when running forward/backward
+    float currentLeanPitch; // Interpolated running pitch tilt angle
+    float targetLeanRoll;   // Target roll tilting when strafing left/right
+    float currentLeanRoll;  // Interpolated running roll tilt angle
+
+    float uniformScale; // Uniform scale multiplier for the 3D models
+
+    /**
+     * Sets the uniform scale of Kinger.
+     * scale The scaling factor to apply uniformly.
+     */
     void setScale(float scale);
 
-    // Move Kinger relative to the camera's current horizontal angle (cameraYaw).
-    // forward/backward: W / S keys.
+    /**
+     * Shifts player position along the forward orientation vector.
+     * speed Movement speed multiplier.
+     * cameraYaw Reference direction angle.
+     */
     void moveForward(float speed, float cameraYaw);
-    // strafe left/right: A / D keys.
-    void moveRight(float speed, float cameraYaw);
-    // ─────────────────────────────────────────────────────────────────────────
 
+    /**
+     * Shifts player position along the lateral side orientation vector.
+     * speed Movement speed multiplier.
+     * cameraYaw Reference direction angle.
+     */
+    void moveRight(float speed, float cameraYaw);
+
+    // Texture Bindings
     GLuint headTextureID;
     GLuint headPieceTextureID;
     GLuint clothTextureID;
@@ -92,6 +123,7 @@ public:
     GLuint leftEyeTextureID;
     GLuint rightEyeNTextureID;
 
+    // OBJ File Loaders
     bool loadHead(const std::string& filePath);
     bool loadHeadPiece(const std::string& filePath);
     bool loadLeftEye(const std::string& filePath);
@@ -104,6 +136,7 @@ public:
     bool loadBucketHandle(const std::string& filePath);
     //bool load(const std::string& filePath);
 
+    // Individual component rendering methods
     void drawHead() const;
     void drawHeadPiece() const;
     void drawLeftEye() const;
@@ -115,11 +148,13 @@ public:
     void drawBucket() const;
     void drawBucketHandle() const;
     void drawBullet() const;
+
+    /**
+     * Renders the entire hierarchical character structure, combining limbs, bodies, and items.
+     */
     void draw() const;
-
-
 };
 
 } // namespace ProjectKinger
 
-#endif
+#endif // KINGER_HPP

@@ -147,3 +147,25 @@ void ObjModel::draw() const
 
     glEnd();
 }
+
+Vec3 ObjModel::getCenter() const
+{
+    Vec3 center = {0.0f, 0.0f, 0.0f};
+    if (vertices.empty()) return center;
+    float minX = vertices[0].x, maxX = vertices[0].x;
+    float minY = vertices[0].y, maxY = vertices[0].y;
+    float minZ = vertices[0].z, maxZ = vertices[0].z;
+    for (const auto& v : vertices)
+    {
+        if (v.x < minX) minX = v.x;
+        if (v.x > maxX) maxX = v.x;
+        if (v.y < minY) minY = v.y;
+        if (v.y > maxY) maxY = v.y;
+        if (v.z < minZ) minZ = v.z;
+        if (v.z > maxZ) maxZ = v.z;
+    }
+    center.x = (minX + maxX) / 2.0f;
+    center.y = (minY + maxY) / 2.0f;
+    center.z = (minZ + maxZ) / 2.0f;
+    return center;
+}

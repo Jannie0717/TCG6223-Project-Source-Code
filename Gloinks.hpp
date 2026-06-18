@@ -2,14 +2,22 @@
 #define GLOINKS_HPP
 
 #include "ObjModel.hpp"
+#include "GloinksAnimation.hpp"
 #include <string>
+#include <vector>
 
 namespace ProjectGloinks
 {
 
+/**
+ * Gloinks
+ * Represents the Gloinks group actor, managing the underlying OBJ models, textures,
+ * scaling, and forwarding calls to the state-driven GloinksAnimation module.
+ */
 class Gloinks
 {
 private:
+    // OBJ Model Parts
     ObjModel gloinksBowlingPinModel;
     ObjModel gloinksCircleModel;
     ObjModel gloinksCubeModel;
@@ -17,9 +25,7 @@ private:
     ObjModel gloinksStarModel;
     ObjModel gloinksTriangularModel;
 
-
-    //ObjModel Model;
-
+    // Loading Flags
     bool gloinksBowlingPinLoaded;
     bool gloinksCircleLoaded;
     bool gloinksCubeLoaded;
@@ -27,14 +33,23 @@ private:
     bool gloinksStarLoaded;
     bool gloinksTriangularLoaded;
 
-    //bool Loaded;
-
 public:
+    /**
+     * Constructor that resets model loading flags and sets the initial uniform scale.
+     */
     Gloinks();
 
-    float uniformScale;
+    GloinksAnimation animation; // The active animation state-machine container
+
+    float uniformScale; // Uniform scale multiplier for all Gloink instances
+
+    /**
+     * Sets the uniform scale of the Gloink shapes.
+     * scale The scaling factor to apply uniformly.
+     */
     void setScale(float scale);
 
+    // Texture Bindings
     GLuint BowlingPinTextureID;
     GLuint CircleTextureID;
     GLuint CubeTextureID;
@@ -42,6 +57,7 @@ public:
     GLuint StarTextureID;
     GLuint TriangularTextureID;
 
+    // OBJ File Loading Interface
     bool loadGloinksBowlingPin(const std::string& filePath);
     bool loadGloinksCircle(const std::string& filePath);
     bool loadGloinksCube(const std::string& filePath);
@@ -49,19 +65,37 @@ public:
     bool loadGloinksStar(const std::string& filePath);
     bool loadGloinksTriangular(const std::string& filePath);
 
-    //bool load(const std::string& filePath);
+    // Render functions for individual shapes
+    void drawGloinksBowlingPin(float jumpTimer, float posX, float posY, float posZ, bool isHurt, float hurtTimer, bool isDead, float deathTimer) const;
+    void drawGloinksCirle(float jumpTimer, float posX, float posY, float posZ, bool isHurt, float hurtTimer, bool isDead, float deathTimer) const;
+    void drawGloinksCube(float jumpTimer, float posX, float posY, float posZ, bool isHurt, float hurtTimer, bool isDead, float deathTimer) const;
+    void drawGloinksMoon(float jumpTimer, float posX, float posY, float posZ, bool isHurt, float hurtTimer, bool isDead, float deathTimer) const;
+    void drawGloinksStar(float jumpTimer, float posX, float posY, float posZ, bool isHurt, float hurtTimer, bool isDead, float deathTimer) const;
+    void drawGloinksTriangular(float jumpTimer, float posX, float posY, float posZ, bool isHurt, float hurtTimer, bool isDead, float deathTimer) const;
 
-    void drawGloinksBowlingPin() const;
-    void drawGloinksCirle() const;
-    void drawGloinksCube() const;
-    void drawGloinksMoon() const;
-    void drawGloinksStar() const;
-    void drawGloinksTriangular() const;
+    /**
+     * Renders all active Gloinks in the scene.
+     */
     void draw() const;
 
+    /**
+     * Initializes all spawn variables and parameters for the collection of Gloinks.
+     */
+    void initGloinks();
 
+    /**
+     * Updates positions, timers, and states for all active Gloinks.
+     * deltaTime The elapsed frame time in seconds.
+     */
+    void updateGloinks(float deltaTime);
+
+    /**
+     * Damages a Gloink at the specified index.
+     * index The index of the Gloink to damage.
+     */
+    void hurtGloink(int index);
 };
 
 } // namespace ProjectGloinks
 
-#endif
+#endif // GLOINKS_HPP

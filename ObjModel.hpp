@@ -38,6 +38,7 @@ public:
     void clear();
     bool loadFromObjText(const std::string& filePath);
     void draw() const;
+    Vec3 getCenter() const;
 };
 
 #endif

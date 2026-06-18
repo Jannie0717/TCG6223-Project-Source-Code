@@ -1,348 +1,185 @@
-# State of Code
-
-This document is a quick guide to the structure of the project, the role of each source file, and the flow of the application.
-
-**Last updated:** 2026-06-15
+# State of Code — TCG6223 Fixed-Function OpenGL Game Project
+**Technical Onboarding Guide & Architecture Documentation**
 
 ---
 
-## 1. Project Overview
+## 1. High-Level Project Overview
 
-This is a C++ OpenGL/GLUT computer graphics project that renders a 3D scene of a circus/battle-arena world. Models are loaded from plain-text OBJ-style files stored in the `Model/` folder. The project features multiple fully-implemented characters, an animated environment, texture mapping, local lighting, background music, and a real-time animation state machine for the main character.
+This project is a 3D third-person action game set in a circus-arena environment, heavily inspired by the characters of **The Amazing Digital Circus (TADC)**. It is built in C++ using the fixed-function OpenGL and GLUT libraries.
 
-**The scene currently renders all of the following simultaneously:**
-- Kinger (main character — fully animated)
-- Gloinks (scene props — 6 pieces)
-- Caine (supporting character — fully modelled and textured)
-- Butterfly (scene prop — 3 pieces, alpha-blended wings)
-- KingerRoll (additional Kinger variant model)
-- Environment (arena — skybox, ground, roof, walls, pillars, spheres, cubes, and a digital glitch effect)
+### Core Gameplay Loop
+The player controls **Kinger** as a third-person character who can move, jump, shoot, dodge roll, reload, and heal using butterfly summons. Kinger faces the boss **Caine** (the Ringmaster), who stands in the center of the arena, and waves of **Gloinks** (hazard enemies).
 
----
-
-## 2. File Map
-
-### Entry and Runtime Control
-
-#### `CNAmain.cpp`
-- Main program entry point (`main()`).
-- Initializes GLUT, creates the window, sets OpenGL state, and starts `glutMainLoop()`.
-- Contains user input callbacks:
-  - **`a/d/w/s/q/e`** — move world on X/Y/Z axis
-  - **Arrow keys** — rotate world X/Y
-  - **`SPACE`** — triggers `kinger.animation.castGunSkill()` (Kinger's gunshot skill)
-  - **`HOME`** — restores all defaults via `myDataInit()`
-  - **`ESC`** — exits the application
-  - **`F1`** — toggle fill / wireframe mode
-  - **`F2`** — toggle world axis rendering
-  - **`F3`** — toggle OpenGL lighting on/off
-  - **Mouse left drag** — rotate world X/Y
-  - **Mouse right drag** — rotate world around Z
-- Calls `myInit()`, `myViewingInit()`, `myLightingInit()`, and `myvirtualworld.init()`.
-- Prints a welcome/help message to the console on startup.
-
-#### `CNAmain.hpp`
-- Header for the runtime system.
-- Declares callback functions and utility structs:
-  - `MyWindow` — window title, position, and size
-  - `MyWorld` — world-level position, rotation, and scale transforms
-  - `MyViewer` — camera eye, center, up vectors, FOV, near/far planes
-  - `MySetting` — keyboard/mouse state, shading mode, increment values
-  - `MyAxis` — world axis draw toggle helper
+### Rendering & Update Pipeline
+The game runs on a single-threaded message loop managed by GLUT.
+1. **GLUT Events**: Keyboard, mouse clicks, mouse passive movement, and window resize events update input states (`keyStates` array, `cameraYaw`/`cameraPitch` tracking).
+2. **Display Loop (`myDisplayFunc`)**:
+   - Recomputes the over-the-shoulder third-person camera orientation via `gluLookAt` using follow distance, height, and right-shoulder offsets.
+   - Sets up light source positions.
+   - Iterates through the virtual world instance to render the environment, characters, bullets, and summon particles.
+   - Switches to 2D orthographic projection to overlay the aim crosshair.
+3. **Frame Tick (`tickTime`)**:
+   - Computes the elapsed time (`deltaTime`) since the last frame.
+   - Updates the physics and animation states for Kinger, Caine, and all active Gloinks.
 
 ---
 
-### World Composition
+## 2. Directory & File Structure
 
-#### `CNAWorld.hpp`
-- Declares the top-level world controller class `MyVirtualWorld` inside `namespace ProjectWorld`.
-- Members:
-  - `ProjectKinger::Kinger kinger`
-  - `ProjectGloinks::Gloinks gloinks`
-  - `ProjectCaine::Caine caine`
-  - `ProjectButterfly::Butterfly butterfly`
-  - `ProjectKingerRoll::KingerRoll kingerRoll`
-  - `ProjectEnvironment::Environment environment`
-  - `AudioManager audioManager`
-- Exposes: `init()`, `draw()`, `tickTime()`
-
-#### `CNAWorld.cpp`
-- Implements `MyVirtualWorld::init()`, `draw()`, and `tickTime()`.
-- **`init()`** loads all model `.txt` files and textures for every character and environment object. Also calls `setupEnvironmentLighting()` and `audioManager.playBackgroundMusic(...)` at the end.
-- **`draw()`** renders the whole scene in this order:
-  1. `environment.draw()`
-  2. `kinger.draw()`
-  3. `gloinks.draw()`
-  4. `caine.draw()`
-  5. `butterfly.draw()`
-  6. `kingerRoll.draw()`
-- **`tickTime()`** updates per-frame animations:
-  - `environment.tickTime()` — updates environment animation clock
-  - `kinger.update(0.016f)` — ticks Kinger's idle and skill animations
-- Defines `setupEnvironmentLighting()` — a scene-wide global light setup using GL_LIGHT0 with a warm-dim neutral directional light from upper-left.
-
----
-
-### Character Systems
-
-#### Kinger (Main Character) — `Kinger.hpp` / `Kinger.cpp`
-
-**Status: Fully implemented with real-time animation.**
-
-**10 model parts:**
-| Part | Texture |
-|---|---|
-| Head | WoodTexture.jpg |
-| HeadPiece | WoodTexture.jpg |
-| LeftEye | LeftEye.png |
-| RightEyeN | RightEyeN.png |
-| Body | (flat skin color) |
-| Cloth | Kinger_Gown.png |
-| LeftHand | (flat white) |
-| RightHandwGun | RightHandwGun.png |
-| Bucket | (flat white) |
-| BucketHandle | (no texture) |
-
-**Extra draw element:**
-- `drawBullet()` — renders a `glutSolidSphere` projectile at runtime when the gun skill is active.
-
-**Animation:** Kinger holds a public `KingerAnimation animation` member. Every draw call reads animation state offsets (hover, arm rotation, cloth rotation, body Y/Z offsets, bullet position) from it.
-
-**`update(float deltaTime)`** calls both `animation.updateIdleState()` and `animation.updateSkillState()`.
-
----
-
-#### KingerAnimation — `KingerAnimation.hpp` / `KingerAnimation.cpp`
-
-**Status: Fully implemented state machine.**
-
-**Idle animation (always running):**
-- `hoverOffset` — smooth Y-axis body oscillation using `sin(idleTimer * 2.0)`
-- `clothRotation` — Z-axis cloth flutter using `cos(idleTimer * 2.5)`
-- `armRotation` — breathing arm sway using `sin(idleTimer * 1.8)`
-
-**Gun skill animation (triggered by SPACE):**
-
-`castGunSkill()` starts the sequence. `updateSkillState()` drives it through 4 phases:
-
-| Phase | Duration | Action |
-|---|---|---|
-| 1 — Wind-up | 0.0s – 0.5s | Arm rotates back –45°, body dips |
-| 2 — Execution | 0.5s – 0.7s | Arm snaps forward to +90°, bullet spawns |
-| 3 — Recoil/Recovery | 0.7s – 1.2s | Arm returns to 0°, body jolts backward then recovers |
-| 4 — Reset | > 1.2s | All skill variables reset |
-
-**Bullet projectile:**
-- Constants: `BULLET_TRAVEL_SPEED = 80.0f`, `BULLET_SPAWN_Z = -10.0f`, `BULLET_MAX_DISTANCE = -150.0f`
-- Travels along the Z axis each tick while `isBulletActive` is true.
-- Auto-despawns when it exceeds `BULLET_MAX_DISTANCE`.
-
----
-
-#### Caine (Supporting Character) — `Caine.hpp` / `Caine.cpp`
-
-**Status: Fully implemented. Loaded and drawn. No animation yet.**
-
-**14 model parts (all textured):**
-- Hat, UpperJaw, LowerJaw, Tongue, Turso (torso)
-- LeftHand, RightHand, LeftPalm, RightPalm
-- LeftLeg, RightLeg
-- Staff
-- LeftEye, RightEye
-
-All parts placed at `glTranslatef(0, -19.5, 20)` with `glRotatef(180, 0, 1, 0)` and `glScalef(3, 3, 3)`. The LowerJaw uses a slightly different transform with a –20° X-axis rotation to open the mouth.
-
-No animation state machine exists yet for Caine.
-
----
-
-#### Butterfly — `Butterfly.hpp` / `Butterfly.cpp`
-
-**Status: Fully implemented. Loaded and drawn. No animation yet.**
-
-**3 model parts (all textured):**
-- LeftWing, RightWing — rendered with `GL_BLEND` (alpha transparency)
-- Turso
-
-All three parts share the same transform: `glTranslatef(30, 0, 0)`, `glRotatef(90, 0, 1, 0)`, `glScalef(3, 3, 3)`.
-
-No wing-flap animation yet.
-
----
-
-#### KingerRoll — `KingerRoll.hpp` / `KingerRoll.cpp`
-
-**Status: Fully implemented. Single-part model. No animation.**
-
-**1 model part:**
-- Roll — textured with `Kinger_Roll.png`, placed at `glTranslatef(-30, -19.3, 0)` at 5× scale facing backwards (180° Y).
-
----
-
-#### Gloinks — `Gloinks.hpp` / `Gloinks.cpp`
-
-**Status: Fully implemented. All 6 parts loaded, textured, and drawn. No animation.**
-
-**6 model parts (all textured):**
-- BowlingPin, Circle, Cube, Moon, Star, Triangular
-
----
-
-### Environment — `Environment.hpp` / `Environment.cpp`
-
-**Status: Fully implemented with animations, local lighting, and a glitch effect.**
-
-**9 mesh models:**
-| Model | Notes |
-|---|---|
-| SkyBox | Scaled 15× from center, always drawn first, lighting disabled |
-| Ground | Scaled 15×, placed at Y = –18.7 |
-| Roof | Rotates continuously (time × 8°) on Y axis, placed at Y = +18.7 |
-| CastleWall | Two instances: back-left and front-left |
-| Cube | 4 animated instances — linear movement, circular orbit, slower drift |
-| CubeGrouped | Static, placed right-back at (220, –18.7, 150) |
-| IrregularCube | 2 instances — circus props with `CircusObject1` and `CircusObject2` textures |
-| Pillar | 2 instances — front-left and back-right |
-| Sphere | 5 floating instances, each with phase-offset Y oscillation and Y rotation |
-
-**12 textures loaded by `loadTextures()`:**
-CircusStrip.jpg, FloorStrip.png, Circus.jpg, CastleWall.jpg, Cube1.png, Cube2.png, CubeGrouped.png, CircusObject1.png, CircusObject2.png, Pillar.png, Sky.jpg, GlitchEffect.png
-
-**`tickTime()`:** Advances `animationTime` using a true delta-time clock via `glutGet(GLUT_ELAPSED_TIME)`. Clamps delta to 0.1s. Resets to 0 when it exceeds 1000.
-
-**`drawDigitalEffect()`:** Draws a screen-space glitch overlay:
-- 9 textured floating panels with additive blending, UV shift, and flicker
-- 18 thin cyan scan lines using `GL_LINES` with animated blink and horizontal drift
-- Uses `glDepthMask(GL_FALSE)` so it does not write to the depth buffer
-
-**Local Lighting** — `draw()` wraps each section in paired `enableLocalEnvironmentLight()` / `disableLocalEnvironmentLight()` calls using `GL_LIGHT1`:
-
-| Section | Light Color | Notes |
-|---|---|---|
-| Ground + Roof | Dim white-blue | Overhead stage light |
-| CastleWall | Blue | Cold side light |
-| Cubes + CubeGrouped | Red | Circus/battle light |
-| IrregularCube | Purple/Magenta | Abstract props |
-| Pillars | Warm beige | Soft spotlight |
-| Spheres | Blue | Sky glow |
-
----
-
-### Audio — `AudioManager.hpp` / `AudioManager.cpp`
-
-**Status: Implemented. Plays one looping WAV file.**
-
-- Uses `Windows.h` + `mmsystem.h` → `PlaySound()` with `SND_ASYNC | SND_LOOP`.
-- `playBackgroundMusic(filePath)` — plays the file; guards against double-play with `bgmPlaying` flag.
-- `stopBackgroundMusic()` — calls `PlaySound(NULL, NULL, 0)` to stop.
-- Current BGM: `Audio\BGM\[Jigoku Shoujo OST] Ake ni Somaru - The Faustian (128k).wav`
-
----
-
-### Generic Model Loader — `ObjModel.hpp` / `ObjModel.cpp`
-
-**Status: Fully implemented and shared by all character/environment objects.**
-
-- Parses plain-text OBJ-style files:
-  - `v` — vertex
-  - `vn` — normal
-  - `vt` — texture coordinate
-  - `f` — triangle face (index references)
-- Stores parsed data in vectors and draws using OpenGL triangle primitives.
-- Used by every character and environment model in the project.
-
----
-
-### Texture Loader — `TextureLoader.hpp` / `TextureLoader.cpp`
-
-**Status: Fully implemented.**
-
-- Uses `stb_image.h` to decode PNG/JPG images.
-- Returns a `GLuint` texture ID ready for `glBindTexture()`.
-
----
-
-## 3. Asset Folders
-
-### `Model/Kinger/`
-10 mesh `.txt` files + `Textures/` subfolder (WoodTexture.jpg, Kinger_Gown.png, RightHandwGun.png, LeftEye.png, RightEyeN.png)
-
-### `Model/Gloinks/`
-6 mesh `.txt` files + `Textures/` subfolder (6 PNGs)
-
-### `Model/Caine/`
-14 mesh `.txt` files + `Textures/` subfolder (14 PNGs)
-
-### `Model/Butterfly/`
-3 mesh `.txt` files + `Textures/` subfolder (Butterfly_LeftWing.png, Butterfly_RightWing.png, Butterfly_Turso.png)
-
-### `Model/Kinger_Roll/`
-1 mesh `.txt` file + `Textures/` subfolder (Kinger_Roll.png)
-
-### `Model/Environment/`
-9 mesh `.txt` files + `Textures/` subfolder (12 images)
-
-### `Audio/BGM/`
-1 WAV file for the background music loop.
-
----
-
-## 4. Runtime Flow
+The codebase is organized into modules. Each character/entity separates its raw rendering (drawing calls) from its logical variables and state calculations.
 
 ```
-main()
-  └── myWelcome()           — print console help
-  └── myInit()
-        ├── myDataInit()    — set all default values
-        ├── GLUT window/callbacks setup
-        ├── OpenGL state init (depth test, culling, etc.)
-        ├── myViewingInit() — perspective camera
-        ├── myLightingInit()— global GL_LIGHT0 setup
-        └── myvirtualworld.init()
-              ├── Load all model .txt files (Kinger, Gloinks, Caine, Butterfly, KingerRoll, Environment)
-              ├── Load all textures
-              ├── setupEnvironmentLighting()
-              └── audioManager.playBackgroundMusic()
+[Root]
+├── CNAmain.cpp / .hpp          # Entry point, GLUT callbacks, input polling, follow camera, 2D UI
+├── CNAWorld.cpp / .hpp         # Main World controller: owns all models, handles initialization & ticks
+├── ObjModel.cpp / .hpp         # Custom OBJ mesh parser (.txt format) & low-level OpenGL draw calls
+├── TextureLoader.cpp / .hpp    # STB Image wrapper to load PNG/JPG images into OpenGL textures
+├── Environment.cpp / .hpp      # Skybox, floor, walls, pillars, and glitch digital background effects
+├── AudioManager.cpp / .hpp     # Sound loading and playing placeholders (WinMM API wrapper)
+├── Kinger.cpp / .hpp           # Kinger visual mesh draw calls, texturing, and physical coordinates
+├── KingerAnimation.cpp / .hpp  # Kinger logical updates: idle sway, shooting recoil, reload, roll, heal
+├── KingerRoll.cpp / .hpp       # Auxiliary roll-ball mesh model wrapper used during the dodge roll
+├── Caine.cpp / .hpp            # Caine visual drawing calls for 14 distinct hierarchical body parts
+├── CaineAnimation.cpp / .hpp   # Caine state machine: idle, shoot, lay down, lean forward, death/respawn
+├── Gloinks.cpp / .hpp          # Gloinks drawing calls for 6 variant shapes (star, moon, Pin, etc.)
+├── GloinksAnimation.cpp / .hpp # Spawning, bounce/roll update math, damage flashing, and death falls
+└── Butterfly.cpp / .hpp        # Visual particle butterfly mesh drawings (left/right wings, body)
+```
 
-GLUT main loop ──► myDisplayFunc()
-  ├── glClear
-  ├── Apply world transforms (translate, rotate, scale)
-  ├── myvirtualworld.draw()
-  │     ├── environment.draw()   (skybox → ground → roof → walls → cubes → pillars → spheres → glitch)
-  │     ├── kinger.draw()        (10 parts + bullet)
-  │     ├── gloinks.draw()       (6 parts)
-  │     ├── caine.draw()         (14 parts)
-  │     ├── butterfly.draw()     (3 parts)
-  │     └── kingerRoll.draw()    (1 part)
-  ├── glutSwapBuffers
-  └── myvirtualworld.tickTime()
-        ├── Real delta-time clock computed via glutGet(GLUT_ELAPSED_TIME)
-        ├── kinger.update(deltaTime) — tick idle + skill animations
-        └── environment.tickTime()  — advance animationTime
+### Separation of Concerns: Visuals vs. Logic
+- **`Name.hpp` / `Name.cpp` (Visuals)**:
+  Contains texture bindings, model instances, and drawing functions. Coordinates transformations via matrix stacks based on the current state.
+  *Example*: `Caine.cpp` uses `glPushMatrix()` and rotations to arrange and draw Caine's hat, jaws, eyes, and hands.
+- **`NameAnimation.hpp` / `NameAnimation.cpp` (Logic)**:
+  Tracks logical state variables, timers, interpolation factors, and health pools. Uses delta time (`deltaTime`) to advance timelines.
+  *Example*: `CaineAnimation.cpp` updates `idleTimer` to calculate breathing sways, handles transition speeds for posture shifts, and ticks the death sequence.
+
+---
+
+## 3. Core Systems & Design Patterns
+
+### DeltaTime Update Loop
+To ensure gameplay runs at a consistent speed regardless of frame rate, all movement and animation updates are scaled by `deltaTime` (the fraction of a second since the last frame):
+
+```cpp
+float currentLeanPitch;
+float targetLeanPitch;
+const float LEAN_SPEED = 3.0f;
+
+// Smooth interpolation independent of frame rate
+currentLeanPitch += (targetLeanPitch - currentLeanPitch) * LEAN_SPEED * deltaTime;
+```
+
+### Posture & Ability State Machines
+Animations and abilities are governed by discrete states. Mutual exclusion is enforced via guard clauses inside the skill casting functions.
+- **Kinger States**: Idle, Casting Skill (Shooting), Rolling, Reloading, Healing, Hurt (Damage Flash), and Dead.
+- **Caine States**: Idle, Shooting State, Laying Down (Key `8`), Leaning Forward (Key `9`), and Dead (Key `0`).
+- **Gloinks States**: Bouncing (Alive), Hurt, and Dead (Minecraft-style fall).
+
+### The "Matrix Sandwich" (Pivot Point Rotation)
+To rotate a model part around a specific offset pivot (like Caine's jaw or head) rather than the global origin `(0,0,0)`, the code uses a standard translation sandwich:
+1. Push matrix: `glPushMatrix()`
+2. Translate to pivot point offset: `glTranslatef(pivotX, pivotY, pivotZ)`
+3. Apply rotations: `glRotatef(...)`
+4. Translate back by the negative offset: `glTranslatef(-pivotX, -pivotY, -pivotZ)`
+5. Draw the local geometry
+6. Pop matrix: `glPopMatrix()`
+
+#### Code Snippet: Caine's Jaw Opening
+```cpp
+// 1. Move to jaw attachment joint, combining hover and body offsets
+glTranslatef(0.0f, animation.hoverOffset + caineBodyY, 0.0f);
+
+// 2. Translate to jaw pivot joint center (Matrix Sandwich translation)
+glTranslatef(0.0f, -6.0f, -2.0f);
+
+// 3. Apply rotation along pitch axis (X axis) to open the mouth
+glRotatef(-caineJawAngle, 1.0f, 0.0f, 0.0f);
+
+// 4. Translate back (Matrix Sandwich inverse translation)
+glTranslatef(0.0f, 6.0f, 2.0f);
+
+// 5. Draw the lower jaw model
+drawLowerJaw();
+```
+
+#### Code Snippet: Caine's Head Tilting (Death Animation)
+During Caine's death animation, his head tilts to the left at a pivot located in the center of the head `(0.0f, 3.0f, -20.0f)`:
+```cpp
+// 1. Position relative to body base
+glTranslatef(0.0f, animation.hoverOffset + caineBodyY, 0.0f);
+
+// 2. Translate to neck/head pivot point
+glTranslatef(0.0f, 3.0f, -20.0f);
+
+// 3. Rotate head (left tilt on roll axis) during death sequence
+if (animation.isDead)
+{
+    glRotatef(45.0f, 0.0f, 0.0f, 1.0f); // Tilt 45 degrees left
+}
+
+// 4. Translate back
+glTranslatef(0.0f, -3.0f, 20.0f);
+
+// 5. Draw Head components
+drawHeadParts();
 ```
 
 ---
 
-## 5. Known Issues / Things to Note
+## 4. Key Variables & Global States
 
-- ~~`kinger.update()` used a hardcoded `0.016f` delta~~ — **FIXED:** `tickTime()` now computes a real delta time using `glutGet(GLUT_ELAPSED_TIME)`, clamped to 0.1s, matching `environment.tickTime()`.
-- ~~Bullet despawn inversion bug in `KingerAnimation::updateSkillState()`~~ — **FIXED:** Changed `bulletZOffset += ...` to `bulletZOffset -= ...` so the offset grows more negative each frame and correctly crosses `BULLET_MAX_DISTANCE = -150.0f`.
-- Caine, Butterfly, and KingerRoll have no animation state machine yet — they are rendered statically.
-- Caine and the other characters share the same transform origin. They are visible as separate characters because of their individual `glTranslatef` values; there is no dedicated scene-graph positioning yet.
+Incoming developers must respect the following bounds and values during integration:
+
+### Hotkeys and Controls
+- **Mouse Click / LMB Hold**: Fire gun skill.
+- **`W`/`A`/`S`/`D`**: Move Kinger relative to camera horizontal direction.
+- **`SPACE`**: Jump.
+- **`R`**: Reload ammo capacity.
+- **`C`**: Execute dodge roll (gain speed, invulnerability, and turn into checker ball).
+- **`F`**: Summon butterfly to heal +30 HP (locks movement for 2.0 seconds).
+- **`8`**: Toggle Caine body Laying Down state.
+- **`9`**: Toggle Caine body Leaning Forward (45 degrees) state.
+- **`0`**: Trigger Caine Death state (snaps to default position, tilts head left, opens mouth, and disappears).
+
+### Arena Environment Constants
+- **Ground Level**: `posY = -18.7f` (Kinger's base height).
+- **Arena Boundaries**: Cylindrical boundary centered around the origin `(0, 0)` with radius of `400.0` units. Keep characters clamped within this circle.
+- **Caine Default Spawn Point**: `(0.0f, 0.0f, -120.0f)`.
+
+### Follow Camera Properties
+- **Follow Distance**: 60.0 units behind Kinger.
+- **Right-Shoulder Offset**: 18.0 units right.
+- **Vertical Base Height**: 30.0 units above Kinger's chest height.
 
 ---
 
-## 6. Suggested Reading Order
+## 5. Current Status & Next Steps
 
-To understand the project quickly, read these files in this order:
+### 100% Complete & Stable
+*   **Aesthetics**: Beautifully lit circus arena, floating geometric elements, digital background glitch effects, and particle indicators.
+*   **Kinger Controls**: Normalised horizontal movement, gravity/jump physics, dodge roll model swap, auto-fire shoot with Z-recoil and parallax tracers, reload cycle, and butterfly heal path.
+*   **Gloink Animations**: Jumping squashes, Z-axis roll-spins, and Minecraft-style death falls.
+*   **Caine Animations**: Breathing hover, jaw flapping, laying down, leaning forward, and death tilting/jaw-opening sequences.
 
-1. `CNAmain.cpp` — understand the GLUT loop and input system
-2. `CNAWorld.hpp` — see all scene objects at a glance
-3. `CNAWorld.cpp` — see how everything is loaded and drawn
-4. `ObjModel.cpp` — understand the model file parser
-5. `KingerAnimation.hpp` / `KingerAnimation.cpp` — understand the animation system
-6. `Kinger.cpp` — see how animation offsets drive rendering
-7. `Environment.cpp` — see local lighting and animated environment objects
-8. `Caine.cpp` / `Butterfly.cpp` / `KingerRoll.cpp` — simpler static characters
-9. `AudioManager.cpp` — audio system
-10. `TextureLoader.cpp` — texture pipeline
+### TODO Roadmap (For Incoming Teammates)
+The following tasks are pending to turn this animation model viewer into a complete game:
+
+- [ ] **Spawning Waves Manager**:
+  Create an automated spawn cycle in `GloinksAnimation` or a new spawner manager. It should spawn Gloinks at random points within the arena boundaries on a timer, up to a maximum concurrent count.
+- [ ] **Collision Detection**:
+  - **Bullet vs. Gloinks**: Add bounding box or radius checks in `KingerAnimation::updateSkillState` against all active Gloinks. Trigger `GloinksAnimation::hurtGloink(index)` on contact.
+  - **Bullet vs. Caine**: Check collision against Caine's central position. Trigger damage on Caine.
+  - **Gloinks vs. Kinger**: Add proximity damage. If an active Gloink hits Kinger, reduce Kinger's health pool (`Kinger::takeDamage`).
+- [ ] **Player HUD & Boss Health UI**:
+  Render graphical indicators or health bars. Switch to 2D orthographic projection in `CNAmain.cpp` and draw:
+  - Kinger's current health pool (HP bar) and remaining ammunition capacity.
+  - Caine's boss health bar at the top of the screen when he is active.
+- [ ] **Game State Manager**:
+  Implement state flows:
+  - **Start Menu**: Interactive title screen.
+  - **Active Battle**: Spawns Gloinks and enables Caine's AI attack patterns.
+  - **Win Screen**: Triggered when Caine's health drops to 0.
+  - **Lose Screen**: Triggered when Kinger's health drops to 0.
+- [ ] **Audio Integration**:
+  Uncomment or complete the `AudioManager` sound triggers (using WinMM API) to play background music and shoot/reload sound effects.

@@ -4,13 +4,22 @@
 #include <GL/glut.h>
 #include <string>
 #include "ObjModel.hpp"
+#include "CaineAnimation.hpp"
 
 namespace ProjectCaine
 {
 
+/**
+ * Caine
+ * Represents the Caine boss character, managing its models, textures, position, and drawing routines.
+ * 
+ * Handles loading of individual OBJ model parts, binding associated texture IDs, scaling, 
+ * updating animation timelines, and executing hierarchical rendering of limbs, body, and head.
+ */
 class Caine
 {
 private:
+    // OBJ Model Parts
     ObjModel hatModel;
     ObjModel leftHandModel;
     ObjModel leftLegModel;
@@ -26,6 +35,7 @@ private:
     ObjModel leftEyeModel;
     ObjModel rightEyeModel;
 
+    // Loading Flags
     bool hatLoaded;
     bool leftHandLoaded;
     bool leftLegLoaded;
@@ -41,14 +51,44 @@ private:
     bool leftEyeLoaded;
     bool rightEyeLoaded;
 
-
-
 public:
+    /**
+     * Constructor that initializes position, spawn-tracking flags, and loading states to default.
+     */
     Caine();
 
-    float uniformScale;
+    /**
+     * Updates the character's animation timelines, timers, and state transitions.
+     * deltaTime The elapsed frame time in seconds.
+     */
+    void update(float deltaTime);
+
+    CaineAnimation animation; // Animation state machine instance for this character
+
+    float uniformScale; // Uniform scale multiplier for the entire 3D model representation
+    float posX;         // Current X coordinate in 3D world space
+    float posY;         // Current Y coordinate in 3D world space
+    float posZ;         // Current Z coordinate in 3D world space
+
+    float spawnX;              // Spawn point X coordinate (captured on first frame)
+    float spawnY;              // Spawn point Y coordinate (captured on first frame)
+    float spawnZ;              // Spawn point Z coordinate (captured on first frame)
+    bool spawnPositionSaved;   // Flag tracking whether the spawn point has been successfully cached
+
+    /**
+     * Triggers the death sequence for Caine.
+     * 
+     * Resets active animation postures, snaps Caine to his initial spawn position, and sets the death timer.
+     */
+    void triggerDeath();
+
+    /**
+     * Sets the uniform scale of the character model.
+     * scale The scaling factor to apply uniformly.
+     */
     void setScale(float scale);
 
+    // Texture Bindings
     GLuint hatTextureID;
     GLuint leftHandTextureID;
     GLuint leftLegTextureID;
@@ -64,6 +104,7 @@ public:
     GLuint leftEyeTextureID;
     GLuint rightEyeTextureID;
 
+    // OBJ File Loading Interface
     bool loadHat(const std::string& filePath);
     bool loadLeftHand(const std::string& filePath);
     bool loadLeftLeg(const std::string& filePath);
@@ -79,6 +120,7 @@ public:
     bool loadRightEye(const std::string& filePath);
     bool loadLeftEye(const std::string& filePath);
 
+    // Nested Rendering Functions for Model Parts
     void drawHat() const;
     void drawLeftHand() const;
     void drawLeftLeg() const;
@@ -94,9 +136,15 @@ public:
     void drawRightEye() const;
     void drawLeftEye() const;
 
+    /**
+     * Renders the entire character model hierarchically.
+     * 
+     * Applies positioning translation, idle hovering offset, laying down transition,
+     * leaning forward transition, death head tilting, and delegates drawing to the body/limb sub-functions.
+     */
     void draw() const;
 };
 
 } // namespace ProjectCaine
 
-#endif
+#endif // CAINE_HPP
