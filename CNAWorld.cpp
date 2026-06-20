@@ -2,7 +2,7 @@
  TCG6223 Computer Graphics
  FIST, Multimedia University
 
-  File: CNAworld.cpp (touched to trigger compilation update for rotation direction correction)
+  File: CNAworld.cpp (touched to trigger compilation update for drawing-state linked collision boundaries)
   Objective: show environment / World & declare model file path
 
  Reference code from:

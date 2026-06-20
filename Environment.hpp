@@ -35,6 +35,12 @@ namespace ProjectEnvironment
         bool roofLoaded;
         bool sphereLoaded;
 
+        // Render State Trackers
+        mutable bool isCubeDrawn;
+        mutable bool isPillarDrawn;
+        mutable bool isIrregularCubeDrawn;
+        mutable bool isCastleWallDrawn;
+
         // Texture IDs
         GLuint skyBoxTexture;
         GLuint groundTexture;
@@ -86,7 +92,7 @@ namespace ProjectEnvironment
 
         // Bounding Box Collision
         bool checkWallCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const;
-        bool checkObstacleCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const;
+        bool checkObstacleCollision(float playerX, float playerZ, float playerY, float radius, float& outNewX, float& outNewZ, float& outGroundY) const;
         void getSkyBoxBounds(Vec3& minB, Vec3& maxB) const;
 
         //Main Draw Function

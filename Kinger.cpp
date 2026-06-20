@@ -89,6 +89,7 @@ Kinger::Kinger()
 
     posX      = 0.0f;
     posY      = -18.7f; 
+    currentGroundY = -18.7f;
     posZ      = 0.0f;
     facingYaw = 0.0f;
 
@@ -155,6 +156,7 @@ void Kinger::rebirth()
     currentHealth = maxHealth;
     posX = 0.0f;
     posY = -18.7f;
+    currentGroundY = -18.7f;
     posZ = 0.0f;
     facingYaw = 0.0f;
     velocityY = 0.0f;
@@ -259,7 +261,8 @@ void Kinger::update(float deltaTime, float cameraYaw, float cameraPitch, const b
         // Resolve dynamic and static obstacle collisions
         newX = posX;
         newZ = posZ;
-        ::myvirtualworld.environment.checkObstacleCollision(posX, posZ, collisionRadius, newX, newZ);
+        currentGroundY = -18.7f;
+        ::myvirtualworld.environment.checkObstacleCollision(posX, posZ, posY, collisionRadius, newX, newZ, currentGroundY);
         posX = newX;
         posZ = newZ;
 
@@ -307,15 +310,19 @@ void Kinger::update(float deltaTime, float cameraYaw, float cameraPitch, const b
     velocityY += -60.0f * deltaTime;
     posY += velocityY * deltaTime;
 
-    if (posY <= -18.7f)
+    if (posY <= currentGroundY)
     {
-        posY = -18.7f;
+        posY = currentGroundY;
         velocityY = 0.0f;
         if (!isGrounded)
         {
             isGrounded = true;
             jumpScaleY = 0.8f;
         }
+    }
+    else
+    {
+        isGrounded = false;
     }
 
     jumpScaleY += (1.0f - jumpScaleY) * 10.0f * deltaTime;

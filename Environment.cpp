@@ -133,6 +133,12 @@ Environment::Environment()
     pillarLoaded = false;
     sphereLoaded = false;
 
+    // Render State Trackers
+    isCubeDrawn = true;
+    isPillarDrawn = true;
+    isIrregularCubeDrawn = true;
+    isCastleWallDrawn = true;
+
     // Animation
     animationTime = 0.0f;
 
@@ -303,6 +309,13 @@ void Environment::tickTime() //Time-Based
     {
         animationTime = 0.0f;
     }
+
+    // Reset flags at the end of update so that if draw() is not called next frame,
+    // they remain false for the following tick.
+    isCubeDrawn = false;
+    isPillarDrawn = false;
+    isIrregularCubeDrawn = false;
+    isCastleWallDrawn = false;
 }
 
 ////////////////////////////////////Draw////////////////////////////////////
@@ -410,6 +423,8 @@ void Environment::drawCastleWall() const
     if (!castleWallLoaded)
         return;
 
+    isCastleWallDrawn = true;
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, castleWallTexture);
 
@@ -443,6 +458,8 @@ void Environment::drawCube() const
 {
     if (!cubeLoaded)
         return;
+
+    isCubeDrawn = true;
 
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_CULL_FACE);
@@ -562,6 +579,8 @@ void Environment::drawIrregularCube() const
     if (!irregularCubeLoaded)
         return;
 
+    isIrregularCubeDrawn = true;
+
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_CULL_FACE);
     glEnable(GL_NORMALIZE);
@@ -595,6 +614,8 @@ void Environment::drawPillar() const
 {
     if (!pillarLoaded)
         return;
+
+    isPillarDrawn = true;
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, pillarTexture);
@@ -792,6 +813,12 @@ void Environment::drawDigitalEffect() const
 /////////////////////////////////////Main draw function//////////////////////////
 void Environment::draw() const
 {
+    // Reset rendering tracker flags at the start of rendering
+    isCubeDrawn = false;
+    isPillarDrawn = false;
+    isIrregularCubeDrawn = false;
+    isCastleWallDrawn = false;
+
     // Background first
     drawSkyBox();
 
@@ -856,7 +883,7 @@ void Environment::draw() const
         0.00003f
     );
 
-    drawIrregularCube();
+    //drawIrregularCube();
 
     disableLocalEnvironmentLight(GL_LIGHT1);
 
@@ -904,7 +931,7 @@ void Environment::draw() const
         glLineWidth(2.0f);
 
         // 1. Castle Walls (Red/Pink)
-        if (castleWallLoaded)
+        if (castleWallLoaded && isCastleWallDrawn)
         {
             Vec3 minB, maxB;
             castleWallModel.getBounds(minB, maxB);
@@ -947,8 +974,8 @@ void Environment::draw() const
         // 3. Interactive Obstacles (Green)
         glColor3f(0.0f, 1.0f, 0.0f);
 
-        // 3a. Cubes (only if cubeLoaded)
-        if (cubeLoaded)
+        // 3a. Cubes (only if cubeLoaded and drawn)
+        if (cubeLoaded && isCubeDrawn)
         {
             Vec3 minB, maxB;
             cubeModel.getBounds(minB, maxB);
@@ -985,8 +1012,8 @@ void Environment::draw() const
             drawWireCylinder(c4_x, c4_z, cubeRad * 17.0f, -18.7f, -18.7f + 34.0f);
         }
 
-        // 3b. Pillars (only if pillarLoaded)
-        if (pillarLoaded)
+        // 3b. Pillars (only if pillarLoaded and drawn)
+        if (pillarLoaded && isPillarDrawn)
         {
             Vec3 minB, maxB;
             pillarModel.getBounds(minB, maxB);
@@ -1004,8 +1031,8 @@ void Environment::draw() const
             drawWireCylinder(p2_x, p2_z, pillarRad, -18.7f, 15.0f);
         }
 
-        // 3c. Irregular Cubes (only if irregularCubeLoaded)
-        if (irregularCubeLoaded)
+        // 3c. Irregular Cubes (only if irregularCubeLoaded and drawn)
+        if (irregularCubeLoaded && isIrregularCubeDrawn)
         {
             Vec3 minB, maxB;
             irregularCubeModel.getBounds(minB, maxB);
@@ -1032,7 +1059,7 @@ void Environment::draw() const
  */
 bool Environment::checkWallCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const
 {
-    if (!castleWallLoaded)
+    if (!castleWallLoaded || !isCastleWallDrawn)
     {
         outNewX = playerX;
         outNewZ = playerZ;
@@ -1164,14 +1191,17 @@ static bool resolveCircleCollision(float playerX, float playerZ, float playerRad
     return false;
 }
 
-bool Environment::checkObstacleCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const
+bool Environment::checkObstacleCollision(float playerX, float playerZ, float playerY, float radius, float& outNewX, float& outNewZ, float& outGroundY) const
 {
     bool collided = false;
     outNewX = playerX;
     outNewZ = playerZ;
+    outGroundY = -18.7f;
 
-    // 1. Cubes (only if cubeLoaded)
-    if (cubeLoaded)
+    const float landingThreshold = 3.0f; // Allow landing if player's feet are within 3.0f units of the top surface
+
+    // 1. Cubes (only if cubeLoaded and drawn)
+    if (cubeLoaded && isCubeDrawn)
     {
         Vec3 minB, maxB;
         cubeModel.getBounds(minB, maxB);
@@ -1191,41 +1221,89 @@ bool Environment::checkObstacleCollision(float playerX, float playerZ, float rad
         float c1_x, c1_z;
         getTransformedCenter(cubeModel, -90.0f + moveX1, 100.0f, 8.0f, rotateAngle, c1_x, c1_z);
         float c1_rad = cubeRad * 8.0f;
-        if (resolveCircleCollision(outNewX, outNewZ, radius, c1_x, c1_z, c1_rad, outNewX, outNewZ))
+        float c1_topY = -18.7f + maxB.y * 8.0f;
+        float dx = outNewX - c1_x;
+        float dz = outNewZ - c1_z;
+        float dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + c1_rad)
         {
-            collided = true;
+            if (playerY >= c1_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, c1_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, c1_x, c1_z, c1_rad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
 
         // Cube left 2 - Scale 15.0f, Translate (-180.0f, -18.7f, 40.0f + moveZ2)
         float c2_x, c2_z;
         getTransformedCenter(cubeModel, -180.0f, 40.0f + moveZ2, 15.0f, -rotateAngle * 0.8f, c2_x, c2_z);
         float c2_rad = cubeRad * 15.0f;
-        if (resolveCircleCollision(outNewX, outNewZ, radius, c2_x, c2_z, c2_rad, outNewX, outNewZ))
+        float c2_topY = -18.7f + maxB.y * 15.0f;
+        dx = outNewX - c2_x;
+        dz = outNewZ - c2_z;
+        dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + c2_rad)
         {
-            collided = true;
+            if (playerY >= c2_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, c2_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, c2_x, c2_z, c2_rad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
 
         // Cube right 1 - Scale 10.0f, Translate (90.0f + circleX, -18.7f, -130.0f + circleZ)
         float c3_x, c3_z;
         getTransformedCenter(cubeModel, 90.0f + circleX, -130.0f + circleZ, 10.0f, rotateAngle * 1.2f, c3_x, c3_z);
         float c3_rad = cubeRad * 10.0f;
-        if (resolveCircleCollision(outNewX, outNewZ, radius, c3_x, c3_z, c3_rad, outNewX, outNewZ))
+        float c3_topY = -18.7f + maxB.y * 10.0f;
+        dx = outNewX - c3_x;
+        dz = outNewZ - c3_z;
+        dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + c3_rad)
         {
-            collided = true;
+            if (playerY >= c3_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, c3_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, c3_x, c3_z, c3_rad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
 
         // Cube right 2 - Scale 17.0f, Translate (20.0f + moveX4, -18.7f, -210.0f)
         float c4_x, c4_z;
         getTransformedCenter(cubeModel, 20.0f + moveX4, -210.0f, 17.0f, -rotateAngle * 0.6f, c4_x, c4_z);
         float c4_rad = cubeRad * 17.0f;
-        if (resolveCircleCollision(outNewX, outNewZ, radius, c4_x, c4_z, c4_rad, outNewX, outNewZ))
+        float c4_topY = -18.7f + maxB.y * 17.0f;
+        dx = outNewX - c4_x;
+        dz = outNewZ - c4_z;
+        dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + c4_rad)
         {
-            collided = true;
+            if (playerY >= c4_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, c4_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, c4_x, c4_z, c4_rad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
     }
 
-    // 2. Pillars (only if pillarLoaded)
-    if (pillarLoaded)
+    // 2. Pillars (only if pillarLoaded and drawn)
+    if (pillarLoaded && isPillarDrawn)
     {
         Vec3 minB, maxB;
         pillarModel.getBounds(minB, maxB);
@@ -1233,26 +1311,49 @@ bool Environment::checkObstacleCollision(float playerX, float playerZ, float rad
         float hz = (maxB.z - minB.z) * 0.5f;
         float localRadius = std::sqrt(hx * hx + hz * hz);
         float pillarRad = localRadius * 15.0f;
+        float pillar_topY = -18.7f + maxB.y * 15.0f;
 
         // Front-left pillar - Scale 15.0f, Translate (-150.0f, -18.7f, 27.0f)
         float p1_x, p1_z;
         getTransformedCenter(pillarModel, -150.0f, 27.0f, 15.0f, 0.0f, p1_x, p1_z);
-        if (resolveCircleCollision(outNewX, outNewZ, radius, p1_x, p1_z, pillarRad, outNewX, outNewZ))
+        float dx = outNewX - p1_x;
+        float dz = outNewZ - p1_z;
+        float dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + pillarRad)
         {
-            collided = true;
+            if (playerY >= pillar_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, pillar_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, p1_x, p1_z, pillarRad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
 
         // Back-right pillar - Scale 15.0f, Translate (150.0f, -18.7f, -270.0f)
         float p2_x, p2_z;
         getTransformedCenter(pillarModel, 150.0f, -270.0f, 15.0f, 0.0f, p2_x, p2_z);
-        if (resolveCircleCollision(outNewX, outNewZ, radius, p2_x, p2_z, pillarRad, outNewX, outNewZ))
+        dx = outNewX - p2_x;
+        dz = outNewZ - p2_z;
+        dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + pillarRad)
         {
-            collided = true;
+            if (playerY >= pillar_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, pillar_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, p2_x, p2_z, pillarRad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
     }
 
-    // 3. Irregular Cubes (only if irregularCubeLoaded)
-    if (irregularCubeLoaded)
+    // 3. Irregular Cubes (only if irregularCubeLoaded and drawn)
+    if (irregularCubeLoaded && isIrregularCubeDrawn)
     {
         Vec3 minB, maxB;
         irregularCubeModel.getBounds(minB, maxB);
@@ -1264,18 +1365,42 @@ bool Environment::checkObstacleCollision(float playerX, float playerZ, float rad
         float ic1_x, ic1_z;
         getTransformedCenter(irregularCubeModel, -42.0f, 0.0f, 18.0f, 0.0f, ic1_x, ic1_z);
         float ic1_rad = localRadius * 18.0f;
-        if (resolveCircleCollision(outNewX, outNewZ, radius, ic1_x, ic1_z, ic1_rad, outNewX, outNewZ))
+        float ic1_topY = -18.7f + maxB.y * 18.0f;
+        float dx = outNewX - ic1_x;
+        float dz = outNewZ - ic1_z;
+        float dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + ic1_rad)
         {
-            collided = true;
+            if (playerY >= ic1_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, ic1_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, ic1_x, ic1_z, ic1_rad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
 
         // Abstract prop 2 - Scale 12.0f, Translate (-55.0f, -18.7f, 22.0f), Rotated 90.0
         float ic2_x, ic2_z;
         getTransformedCenter(irregularCubeModel, -55.0f, 22.0f, 12.0f, 90.0f, ic2_x, ic2_z);
         float ic2_rad = localRadius * 12.0f;
-        if (resolveCircleCollision(outNewX, outNewZ, radius, ic2_x, ic2_z, ic2_rad, outNewX, outNewZ))
+        float ic2_topY = -18.7f + maxB.y * 12.0f;
+        dx = outNewX - ic2_x;
+        dz = outNewZ - ic2_z;
+        dist = std::sqrt(dx * dx + dz * dz);
+        if (dist < radius + ic2_rad)
         {
-            collided = true;
+            if (playerY >= ic2_topY - landingThreshold)
+            {
+                outGroundY = std::max(outGroundY, ic2_topY);
+            }
+            else
+            {
+                if (resolveCircleCollision(outNewX, outNewZ, radius, ic2_x, ic2_z, ic2_rad, outNewX, outNewZ))
+                    collided = true;
+            }
         }
     }
 

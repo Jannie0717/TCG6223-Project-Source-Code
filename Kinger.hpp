@@ -84,6 +84,7 @@ public:
 
     float posX;     // Current X coordinate of the player in world space
     float posY;     // Current Y coordinate of the player in world space
+    float currentGroundY; // Current ground level Y coordinate under the player
     float posZ;     // Current Z coordinate of the player in world space
     float facingYaw; // Horizontal rotation facing direction in world space
 
