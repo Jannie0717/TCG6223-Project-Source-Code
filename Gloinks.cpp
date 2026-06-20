@@ -3,6 +3,8 @@
 #include <cmath>
 #include "Gloinks.hpp"
 
+extern bool showHitboxes;
+
 using namespace ProjectGloinks;
 
 /**
@@ -291,6 +293,42 @@ void Gloinks::drawGloinksTriangular(float jumpTimer, float posX, float posY, flo
     glDisable(GL_TEXTURE_2D);
 }
 
+static void drawWireCube(float size)
+{
+    float h = size / 2.0f;
+    
+    // Draw top face
+    glBegin(GL_LINE_LOOP);
+        glVertex3f(-h,  h, -h);
+        glVertex3f( h,  h, -h);
+        glVertex3f( h,  h,  h);
+        glVertex3f(-h,  h,  h);
+    glEnd();
+
+    // Draw bottom face
+    glBegin(GL_LINE_LOOP);
+        glVertex3f(-h, -h, -h);
+        glVertex3f( h, -h, -h);
+        glVertex3f( h, -h,  h);
+        glVertex3f(-h, -h,  h);
+    glEnd();
+
+    // Draw connecting vertical edges
+    glBegin(GL_LINES);
+        glVertex3f(-h,  h, -h);
+        glVertex3f(-h, -h, -h);
+
+        glVertex3f( h,  h, -h);
+        glVertex3f( h, -h, -h);
+
+        glVertex3f( h,  h,  h);
+        glVertex3f( h, -h,  h);
+
+        glVertex3f(-h,  h,  h);
+        glVertex3f(-h, -h,  h);
+    glEnd();
+}
+
 /**
  * Renders all active Gloinks in the scene.
  */
@@ -312,6 +350,32 @@ void Gloinks::draw() const
             case 4: drawGloinksStar(gloink.jumpTimer, gloink.posX, gloink.posY, gloink.posZ, gloink.isHurt, gloink.hurtTimer, gloink.isDead, gloink.deathTimer); break;
             case 5: drawGloinksTriangular(gloink.jumpTimer, gloink.posX, gloink.posY, gloink.posZ, gloink.isHurt, gloink.hurtTimer, gloink.isDead, gloink.deathTimer); break;
         }
+    }
+
+    // Draw hitboxes if toggled visible
+    if (showHitboxes)
+    {
+        glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_TEXTURE_2D);
+        glLineWidth(2.0f);
+
+        for (size_t i = 0; i < animation.activeGloinks.size(); ++i)
+        {
+            const auto& gloink = animation.activeGloinks[i];
+            if (gloink.isDead) continue;
+
+            Vec3 gloinkCenter = getGloinkWorldCenter(i);
+            float boxSize = 12.0f * uniformScale;
+
+            glPushMatrix();
+            glTranslatef(gloinkCenter.x, gloinkCenter.y, gloinkCenter.z);
+            glColor3f(0.0f, 1.0f, 0.0f); // Bright green hitbox outline
+            drawWireCube(boxSize);
+            glPopMatrix();
+        }
+
+        glPopAttrib();
     }
 
     glPopMatrix();
@@ -341,4 +405,30 @@ void Gloinks::updateGloinks(float deltaTime)
 void Gloinks::hurtGloink(int index)
 {
     animation.hurtGloink(index);
+}
+
+Vec3 Gloinks::getGloinkWorldCenter(int index) const
+{
+    Vec3 result = { 0.0f, 0.0f, 0.0f };
+    if (index < 0 || index >= (int)animation.activeGloinks.size())
+        return result;
+
+    const auto& gloink = animation.activeGloinks[index];
+    result.x = gloink.posX;
+    result.z = gloink.posZ;
+
+    float centerY = 0.0f;
+    switch (gloink.shapeType)
+    {
+        case 0: centerY = gloinksBowlingPinModel.getCenter().y; break;
+        case 1: centerY = gloinksCircleModel.getCenter().y; break;
+        case 2: centerY = gloinksCubeModel.getCenter().y; break;
+        case 3: centerY = gloinksMoonModel.getCenter().y; break;
+        case 4: centerY = gloinksStarModel.getCenter().y; break;
+        case 5: centerY = gloinksTriangularModel.getCenter().y; break;
+    }
+
+    float scale = 4.0f * uniformScale;
+    result.y = gloink.posY + (centerY * scale);
+    return result;
 }

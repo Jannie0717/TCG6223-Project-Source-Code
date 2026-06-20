@@ -105,7 +105,7 @@ public:
     /**
      * Triggers the rolling movement ability, resetting the phase and squash states.
      */
-    void castRollSkill();
+    void castRollSkill(bool isGrounded);
 
     /**
      * Triggers the gun reload animation timeline.

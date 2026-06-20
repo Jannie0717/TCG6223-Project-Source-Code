@@ -116,6 +116,17 @@ const float CAMERA_FOLLOW_SPEED = 10.0f;
 
 bool keyStates[256] = {false};
 
+// Global variables tracking camera position and look direction
+float currentCameraEyeX = 0.0f;
+float currentCameraEyeY = 0.0f;
+float currentCameraEyeZ = 0.0f;
+
+float currentCameraDirX = 0.0f;
+float currentCameraDirY = 0.0f;
+float currentCameraDirZ = 0.0f;
+
+bool showHitboxes = false; // Toggle to render green hitboxes around active Gloinks
+
 void drawCrosshair()
 {
     glDisable(GL_DEPTH_TEST);
@@ -129,8 +140,8 @@ void drawCrosshair()
     glPushMatrix();
     glLoadIdentity();
 
-    float cx = (window.width / 2.0f)-15;
-    float cy = (window.height / 2.0f)+30;
+    float cx = window.width / 2.0f;
+    float cy = window.height / 2.0f;
     float size = 10.0f;
 
     glColor3f(1.0f, 1.0f, 1.0f);
@@ -163,37 +174,69 @@ void updateKeyStatesFromWindows()
 void myDisplayFunc(void)
 {
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+ 
+ // Get player position and scale for camera calculations
  float& kX = myvirtualworld.kinger.posX;
  float& kZ = myvirtualworld.kinger.posZ;
+ const float kScale = myvirtualworld.kinger.uniformScale;
 
  static int lastTime = glutGet(GLUT_ELAPSED_TIME);
  int currentTime = glutGet(GLUT_ELAPSED_TIME);
  float deltaTime = (currentTime - lastTime) / 1000.0f;
  if (deltaTime > 0.1f) deltaTime = 0.1f;
  lastTime = currentTime;
-
+ 
+ // Smoothly follow the player's Y position
  cameraTrackY += (myvirtualworld.kinger.posY - cameraTrackY) * CAMERA_FOLLOW_SPEED * deltaTime;
 
- const float baseTargetY = (cameraTrackY + 18.7f) + CAMERA_TARGET_HEIGHT_OFFSET;
+ // The camera target's Y position. It's based on the model's origin (18.7f above its base)
+ // plus a shoulder offset. Both are now correctly scaled with the model.
+ const float baseTargetY = cameraTrackY + (18.7f + CAMERA_TARGET_HEIGHT_OFFSET) * kScale;
 
  float rightX = std::cos(cameraYaw);
  float rightZ = -std::sin(cameraYaw);
 
- float targetX = kX + rightX * CAMERA_SHOULDER_OFFSET;
- float targetZ = kZ + rightZ * CAMERA_SHOULDER_OFFSET;
+ // The camera's look-at point, offset for an over-the-shoulder view.
+ // This offset is now scaled to feel consistent regardless of player size.
+ float targetX = kX + rightX * (CAMERA_SHOULDER_OFFSET * kScale);
+ float targetZ = kZ + rightZ * (CAMERA_SHOULDER_OFFSET * kScale);
 
  float cosPitch = std::cos(cameraPitch);
  float sinPitch = std::sin(cameraPitch);
 
- float eyeX = targetX + std::sin(cameraYaw) * cosPitch * CAMERA_DISTANCE;
- float eyeY = baseTargetY + CAMERA_BASE_HEIGHT + sinPitch * CAMERA_DISTANCE;
- float eyeZ = targetZ + std::cos(cameraYaw) * cosPitch * CAMERA_DISTANCE;
+ // The camera's final world position, calculated by orbiting the target point.
+ // All distances are now scaled relative to the player model's size.
+ float eyeX = targetX + std::sin(cameraYaw) * cosPitch * (CAMERA_DISTANCE * kScale);
+ float eyeY = baseTargetY + (CAMERA_BASE_HEIGHT * kScale) + sinPitch * (CAMERA_DISTANCE * kScale);
+ float eyeZ = targetZ + std::cos(cameraYaw) * cosPitch * (CAMERA_DISTANCE * kScale);
 
  const float GROUND_LEVEL = myvirtualworld.kinger.posY;
  if (eyeY < GROUND_LEVEL + 1.0f)
  {
      eyeY = GROUND_LEVEL + 1.0f;
+ }
+
+ // Record camera position to global variables
+ currentCameraEyeX = eyeX;
+ currentCameraEyeY = eyeY;
+ currentCameraEyeZ = eyeZ;
+
+ // Calculate and record camera look direction to global variables
+ float dx = targetX - eyeX;
+ float dy = baseTargetY - eyeY;
+ float dz = targetZ - eyeZ;
+ float len = std::sqrt(dx * dx + dy * dy + dz * dz);
+ if (len > 0.0f)
+ {
+     currentCameraDirX = dx / len;
+     currentCameraDirY = dy / len;
+     currentCameraDirZ = dz / len;
+ }
+ else
+ {
+     currentCameraDirX = -std::sin(cameraYaw) * std::cos(cameraPitch);
+     currentCameraDirY = -std::sin(cameraPitch);
+     currentCameraDirZ = -std::cos(cameraYaw) * std::cos(cameraPitch);
  }
 
  glMatrixMode(GL_MODELVIEW);
@@ -242,13 +285,19 @@ void myKeyboardFunc(unsigned char key, int x, int y)
     // Roll Skill
     case 'c':
     case 'C':
-        myvirtualworld.kinger.animation.castRollSkill();
+        myvirtualworld.kinger.animation.castRollSkill(myvirtualworld.kinger.isGrounded);
         break;
 
     // Reload
     case 'r':
     case 'R':
         myvirtualworld.kinger.animation.castReload();
+        break;
+
+    // Toggle Hitbox Visibility
+    case 'b':
+    case 'B':
+        showHitboxes = !showHitboxes;
         break;
 
     // Heal Skill
@@ -534,6 +583,7 @@ void myWelcome()
  cout << "|   F1  => toggle shading / wire-frame                          |\n";
  cout << "|   F2  => toggle axis rendering                                |\n";
  cout << "|   F3  => toggle lighting on / off                             |\n";
+ cout << "|   <b> => toggle hitbox outlines on / off                      |\n";
  cout << "*****************************************************************\n";
  cout << "|                      H A V E   F U N  !!!                    |\n";
  cout << "*****************************************************************\n";

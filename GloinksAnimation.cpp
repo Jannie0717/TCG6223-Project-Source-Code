@@ -35,7 +35,7 @@ void GloinksAnimation::initGloinks()
         gloink.shapeType = i;
         gloink.isHurt = false;
         gloink.hurtTimer = 0.0f;
-        gloink.health = 3; // Initial health/lives
+        gloink.health = 5; // Initial health/lives
         gloink.isDead = false;
         gloink.deathTimer = 0.0f;
         activeGloinks.push_back(gloink);
@@ -66,7 +66,7 @@ void GloinksAnimation::updateGloinks(float deltaTime)
             {
                 gloink.isDead = false;
                 gloink.deathTimer = 0.0f;
-                gloink.health = 3; // Reset health
+                gloink.health = 5; // Reset health
                 gloink.isHurt = false;
                 gloink.hurtTimer = 0.0f;
             }

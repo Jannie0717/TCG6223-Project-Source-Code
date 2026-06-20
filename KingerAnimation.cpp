@@ -1,5 +1,59 @@
 #include "KingerAnimation.hpp"
 #include <cmath>
+#include "CNAWorld.hpp"
+
+extern ProjectWorld::MyVirtualWorld myvirtualworld;
+
+static bool checkSegmentAABB(float x0, float y0, float z0, float x1, float y1, float z1,
+                             float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+{
+    float tmin = 0.0f;
+    float tmax = 1.0f;
+
+    // X axis
+    float dx = x1 - x0;
+    if (std::abs(dx) < 0.000001f)
+    {
+        if (x0 < minX || x0 > maxX) return false;
+    }
+    else
+    {
+        float t1 = (minX - x0) / dx;
+        float t2 = (maxX - x0) / dx;
+        tmin = std::max(tmin, std::min(t1, t2));
+        tmax = std::min(tmax, std::max(t1, t2));
+    }
+
+    // Y axis
+    float dy = y1 - y0;
+    if (std::abs(dy) < 0.000001f)
+    {
+        if (y0 < minY || y0 > maxY) return false;
+    }
+    else
+    {
+        float t1 = (minY - y0) / dy;
+        float t2 = (maxY - y0) / dy;
+        tmin = std::max(tmin, std::min(t1, t2));
+        tmax = std::min(tmax, std::max(t1, t2));
+    }
+
+    // Z axis
+    float dz = z1 - z0;
+    if (std::abs(dz) < 0.000001f)
+    {
+        if (z0 < minZ || z0 > maxZ) return false;
+    }
+    else
+    {
+        float t1 = (minZ - z0) / dz;
+        float t2 = (maxZ - z0) / dz;
+        tmin = std::max(tmin, std::min(t1, t2));
+        tmax = std::min(tmax, std::max(t1, t2));
+    }
+
+    return tmin <= tmax;
+}
 
 /**
  * Constructor that resets all states, timers, and factors to their defaults.
@@ -113,35 +167,31 @@ void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float 
         {
             isBulletActive = true;
             shootYaw       = currentYaw;
-            shootPitch = currentPitch + (27.0f * 3.14159265f / 180.0f);
+            shootPitch     = currentPitch;
             bulletDistance = 0.0f;
 
-            // 1. Define the pivot and barrel offsets (scaled)
-            const float ARM_OFFSET_X = 16.25f * modelScale; 
-            const float PIVOT_Y      = 20.0f * modelScale; 
-            const float BARREL_Z     = -10.0f * modelScale;  
+            // Access the global camera variables updated in CNAmain.cpp
+            extern float currentCameraEyeX;
+            extern float currentCameraEyeY;
+            extern float currentCameraEyeZ;
 
-            // 2. Apply pitch rotation so the barrel tip moves up/down when aiming
-            float localY = PIVOT_Y + (BARREL_Z * std::sin(shootPitch));
-            float localZ = BARREL_Z * std::cos(shootPitch);
+            extern float currentCameraDirX;
+            extern float currentCameraDirY;
+            extern float currentCameraDirZ;
 
-            // 3. Rotate these scaled offsets into world space using a 2D rotation matrix based on currentYaw
-            float worldOffsetX = (ARM_OFFSET_X * std::cos(currentYaw)) + (localZ * std::sin(currentYaw));
-            float worldOffsetZ = (-ARM_OFFSET_X * std::sin(currentYaw)) + (localZ * std::cos(currentYaw));
+            // 1. Set bullet start position directly to the center of the camera, offset by 10.0f units forward
+            bulletStartX = currentCameraEyeX + currentCameraDirX * 40.0f;
+            bulletStartY = (currentCameraEyeY - 5.0f) + currentCameraDirY * 40.0f;
+            bulletStartZ = currentCameraEyeZ + currentCameraDirZ * 40.0f;
 
-            // 4. Add the result to the player's world position
-            bulletStartX = kingerX + worldOffsetX;
-            bulletStartY = (kingerY * modelScale) + hoverOffset + skillBodyYOffset + localY + BULLET_BARREL_Y_BIAS;
-            bulletStartZ = kingerZ + worldOffsetZ;
-            
             bulletPosX = bulletStartX;
             bulletPosY = bulletStartY;
             bulletPosZ = bulletStartZ;
-            
-            // 4. Calculate the trajectory direction
-            bulletDirX = -std::sin(shootYaw) * std::cos(shootPitch);
-            bulletDirY = -std::sin(shootPitch);
-            bulletDirZ = -std::cos(shootYaw) * std::cos(shootPitch);
+
+            // 2. Set trajectory direction directly to the camera's look direction
+            bulletDirX = currentCameraDirX;
+            bulletDirY = currentCameraDirY;
+            bulletDirZ = currentCameraDirZ;
         }
 
         float t = skillTimer / 0.05f;
@@ -165,6 +215,10 @@ void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float 
 
     if (isBulletActive)
     {
+        float oldBulletPosX = bulletPosX;
+        float oldBulletPosY = bulletPosY;
+        float oldBulletPosZ = bulletPosZ;
+
         float step = BULLET_TRAVEL_SPEED * deltaTime;
         bulletDistance += step;
 
@@ -172,7 +226,33 @@ void KingerAnimation::updateSkillState(float deltaTime, float currentYaw, float 
         bulletPosY += step * bulletDirY;
         bulletPosZ += step * bulletDirZ;
 
-        if (bulletDistance > -BULLET_MAX_DISTANCE) 
+        // AABB Box Hitbox segment intersection check against all active Gloinks
+        for (size_t i = 0; i < ::myvirtualworld.gloinks.animation.activeGloinks.size(); ++i)
+        {
+            auto& gloink = ::myvirtualworld.gloinks.animation.activeGloinks[i];
+            if (gloink.isDead) continue;
+
+            Vec3 gloinkCenter = ::myvirtualworld.gloinks.getGloinkWorldCenter(i);
+            float halfExtent = 6.0f * ::myvirtualworld.gloinks.uniformScale;
+
+            float minX = gloinkCenter.x - halfExtent;
+            float maxX = gloinkCenter.x + halfExtent;
+            float minY = gloinkCenter.y - halfExtent;
+            float maxY = gloinkCenter.y + halfExtent;
+            float minZ = gloinkCenter.z - halfExtent;
+            float maxZ = gloinkCenter.z + halfExtent;
+
+            if (checkSegmentAABB(oldBulletPosX, oldBulletPosY, oldBulletPosZ,
+                                 bulletPosX, bulletPosY, bulletPosZ,
+                                 minX, maxX, minY, maxY, minZ, maxZ))
+            {
+                ::myvirtualworld.gloinks.hurtGloink(i);
+                isBulletActive = false;
+                break;
+            }
+        }
+
+        if (isBulletActive && bulletDistance > -BULLET_MAX_DISTANCE) 
         {
             isBulletActive = false;
         }
@@ -208,9 +288,9 @@ void KingerAnimation::updateIdleState(float deltaTime)
 /**
  * Triggers the rolling movement ability, resetting the phase and squash states.
  */
-void KingerAnimation::castRollSkill()
+void KingerAnimation::castRollSkill(bool isGrounded)
 {
-    if ( isRolling || isReloading || isHealing) return;
+    if (!isGrounded || isRolling || isReloading || isHealing) return;
 
     if (!isRolling)
     {

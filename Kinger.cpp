@@ -742,6 +742,10 @@ void Kinger::draw() const
     // Apply uniform scale
     glScalef(uniformScale, uniformScale, uniformScale);
 
+    // This corrective translation adjusts Kinger's vertical position after scaling.
+    // It ensures the model's base stays on the ground plane (posY) instead of floating.
+    glTranslatef(0.0f, 18.7f * (1.0f - (1.0f / uniformScale)), 0.0f);
+
     // Apply Minecraft-style death animation: fall stiffly to the right side
     if (animation.isDead)
     {
