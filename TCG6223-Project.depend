@@ -621,11 +621,11 @@
 	"Caine.hpp"
 	<cmath>
 
-1781847962 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\objmodel.hpp
+1781939912 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\objmodel.hpp
 	<vector>
 	<string>
 
-1781847961 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caine.cpp
+1781940139 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caine.cpp
 	<GL/glut.h>
 	<iostream>
 	"Caine.hpp"
@@ -637,7 +637,7 @@
 	"ObjModel.hpp"
 	"CaineAnimation.hpp"
 
-1781847961 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caine.hpp
+1781938727 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caine.hpp
 	<GL/glut.h>
 	<string>
 	"ObjModel.hpp"
@@ -654,7 +654,7 @@
 	"CNAmain.hpp"
 	"CNAWorld.hpp"
 
-1781932595 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnamain.cpp
+1781941299 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnamain.cpp
 	"xx.hpp"
 	<cstdlib>
 	<iostream>
@@ -667,11 +667,23 @@
 
 1780983457 c:\users\user\desktop\tcg6223-project-source-code\cnamain.hpp
 
-1781587113 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnamain.hpp
+1781941156 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnamain.hpp
+	<string>
+	<cmath>
+	<iostream>
+	<GL/glut.h>
 
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\cnaworld.hpp
 
-1781587114 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnaworld.hpp
+1781939038 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnaworld.hpp
+	"CNAmain.hpp"
+	"Kinger.hpp"
+	"Gloinks.hpp"
+	"Caine.hpp"
+	"Butterfly.hpp"
+	"KingerRoll.hpp"
+	"Environment.hpp"
+	"AudioManager.hpp"
 
 1781784201 c:\users\user\desktop\tcg6223-project-source-code\kinger.hpp
 	"ObjModel.hpp"
@@ -696,7 +708,7 @@
 	<string>
 	"ObjModel.hpp"
 
-1781932953 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingeranimation.hpp
+1781933502 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingeranimation.hpp
 
 1781929786 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\gloinks.hpp
 	"ObjModel.hpp"
@@ -711,11 +723,14 @@
 
 1781604192 c:\users\user\desktop\tcg6223-project-source-code\environment.hpp
 
-1781490368 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\environment.hpp
+1781942248 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\environment.hpp
+	"ObjModel.hpp"
+	<string>
+	<GL/glut.h>
 
 1781604192 source:c:\users\user\desktop\tcg6223-project-source-code\environment.cpp
 
-1781847961 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnaworld.cpp
+1781942636 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\cnaworld.cpp
 	<GL/glut.h>
 	<iostream>
 	"CNAWorld.hpp"
@@ -725,7 +740,13 @@
 	<GL/glut.h>
 	<string>
 
-1781490368 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\environment.cpp
+1781942834 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\environment.cpp
+	<windows.h>
+	<GL/gl.h>
+	<GL/glut.h>
+	<cmath>
+	"Environment.hpp"
+	"TextureLoader.hpp"
 
 1780756234 c:\users\user\desktop\tcg6223-project-source-code\textureloader.hpp
 	<GL/glut.h>
@@ -737,7 +758,7 @@
 	<cmath>
 	"Gloinks.hpp"
 
-1781931710 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\gloinks.cpp
+1781940046 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\gloinks.cpp
 	<GL/glut.h>
 	<iostream>
 	<cmath>
@@ -750,7 +771,7 @@
 	"Kinger.hpp"
 	"CNAWorld.hpp"
 
-1781933152 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kinger.cpp
+1781942274 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kinger.cpp
 	<GL/glut.h>
 	<iostream>
 	<cmath>
@@ -775,7 +796,7 @@
 	<string>
 	"ObjModel.hpp"
 
-1781933002 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingeranimation.cpp
+1781933681 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\kingeranimation.cpp
 	"KingerAnimation.hpp"
 	<cmath>
 	"CNAWorld.hpp"
@@ -784,7 +805,7 @@
 	<GL/glut.h>
 	"KingerRoll.hpp"
 
-1781847962 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\objmodel.cpp
+1781939918 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\objmodel.cpp
 	<GL/glut.h>
 	<fstream>
 	<sstream>
@@ -827,9 +848,9 @@
 	<cmath>
 	"GloinksAnimation.hpp"
 
-1781847961 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caineanimation.hpp
+1781938711 c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caineanimation.hpp
 
-1781847961 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caineanimation.cpp
+1781938719 source:c:\users\surface laptop 4\onedrive\desktop\tcg6223-project\tcg6223-project-source-code\caineanimation.cpp
 	<GL/glut.h>
 	<cmath>
 	"CaineAnimation.hpp"

@@ -3,6 +3,7 @@
 #include "Caine.hpp"
 #include <cmath>    
 
+// Touched for ObjModel/Environment header dependency rebuild
 using namespace ProjectCaine;
 
 /**
@@ -66,6 +67,7 @@ void Caine::update(float deltaTime)
     animation.updateShootingState(deltaTime);
     animation.updateLayDown(deltaTime);
     animation.updateLeanForward(deltaTime);
+    animation.updateHurtState(deltaTime);
 }
 
 /**
@@ -81,6 +83,8 @@ void Caine::triggerDeath()
     animation.leanForwardFactor = 0.0f;
     animation.isShootingState = false;
     animation.shootingTimer = 0.0f;
+    animation.isHurt = false;
+    animation.hurtTimer = 0.0f;
 
     if (spawnPositionSaved)
     {
@@ -88,6 +92,14 @@ void Caine::triggerDeath()
         posY = spawnY;
         posZ = spawnZ;
     }
+}
+
+/**
+ * Handle hurt initialization, resetting active shooting postures and starting the flashing timer.
+ */
+void Caine::triggerHurt()
+{
+    animation.triggerHurt();
 }
 
 /**
@@ -715,53 +727,87 @@ void Caine::draw() const
     if (animation.isDead && animation.deathTimer >= 1.0f)
         return;
 
-    glPushMatrix();
-    
-    // 1. Move to world space coordinates
-    glTranslatef(posX, posY, posZ);
-
-    // 2. Apply breathing hover offset
-    glTranslatef(0.0f, animation.hoverOffset, 0.0f);
-
-    // 3. Shift Caine upwards when laying down to keep above ground
-    glTranslatef(0.0f, animation.layDownFactor * 20.0f, 0.0f);
-
-    // 4. Transform to Caine's posture pivot center, apply posture rotations, scale, then translate back
-    glTranslatef(0.0f, -19.5f, -20.0f);
-    glRotatef(animation.bodyTiltAngle, 0.0f, 0.0f, 1.0f);          // Idle breathing body tilt
-    glRotatef(animation.layDownFactor * 70.0f, 0.0f, 0.0f, 1.0f);    // Lay down transition rotation
-    glRotatef(animation.leanForwardFactor * 45.0f, 1.0f, 0.0f, 0.0f); // Lean forward transition rotation
-    glScalef(uniformScale, uniformScale, uniformScale);
-    glTranslatef(0.0f, 19.5f, 20.0f);
-
-    // 5. Draw the lower body limbs and torso
-    drawTurso();
-    drawLeftHand();
-    drawRightHand();
-    drawLeftPalm();
-    drawRightPalm();
-    drawLeftLeg();
-    drawRightLeg();
-    drawStaff();
-
-    // 6. Draw the head parts grouped under a death tilt transform
-    glPushMatrix();
-    if (animation.isDead)
+    bool shouldRender = true;
+    if (animation.isHurt)
     {
-        float deathFactor = animation.deathTimer;
-        if (deathFactor > 1.0f) deathFactor = 1.0f;
-        // Symmetrically rotate the head around local neck pivot
-        glTranslatef(0.0f, 3.0f, -20.0f);
-        glRotatef(deathFactor * 20.0f, 0.0f, 0.0f, 1.0f); // Tilt head to left
-        glTranslatef(0.0f, -3.0f, 20.0f);
+        // Toggle visibility every 0.05 seconds (10 Hz blink rate)
+        if (std::fmod(animation.hurtTimer, 0.1f) < 0.05f)
+        {
+            shouldRender = false;
+        }
     }
-    drawHat();
-    drawUpperJaw();
-    drawLowerJaw();
-    drawTongue();
-    drawRightEye();
-    drawLeftEye();
-    glPopMatrix();
 
-    glPopMatrix();
+    if (shouldRender)
+    {
+        glPushMatrix();
+        
+        // 1. Move to world space coordinates
+        glTranslatef(posX, posY, posZ);
+
+        // 2. Apply breathing hover offset
+        glTranslatef(0.0f, animation.hoverOffset, 0.0f);
+
+        // 3. Shift Caine upwards when laying down to keep above ground
+        glTranslatef(0.0f, animation.layDownFactor * 20.0f, 0.0f);
+
+        // 4. Transform to Caine's posture pivot center, apply posture rotations, scale, then translate back
+        glTranslatef(0.0f, -19.5f, -20.0f);
+        glRotatef(animation.bodyTiltAngle, 0.0f, 0.0f, 1.0f);          // Idle breathing body tilt
+        glRotatef(animation.layDownFactor * 70.0f, 0.0f, 0.0f, 1.0f);    // Lay down transition rotation
+        glRotatef(animation.leanForwardFactor * 45.0f, 1.0f, 0.0f, 0.0f); // Lean forward transition rotation
+        glScalef(uniformScale, uniformScale, uniformScale);
+        glTranslatef(0.0f, 19.5f, 20.0f);
+
+        if (animation.isHurt || animation.isDead)
+        {
+            glPushAttrib(GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+            glDisable(GL_TEXTURE_2D);
+
+            GLfloat redColor[]   = { 1.0f, 0.0f, 0.0f, 1.0f };
+            GLfloat blackColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, redColor);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, redColor);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, redColor);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, blackColor);
+
+            glColor3f(1.0f, 0.0f, 0.0f);
+        }
+
+        // 5. Draw the lower body limbs and torso
+        drawTurso();
+        drawLeftHand();
+        drawRightHand();
+        drawLeftPalm();
+        drawRightPalm();
+        drawLeftLeg();
+        drawRightLeg();
+        drawStaff();
+
+        // 6. Draw the head parts grouped under a death tilt transform
+        glPushMatrix();
+        if (animation.isDead)
+        {
+            float deathFactor = animation.deathTimer;
+            if (deathFactor > 1.0f) deathFactor = 1.0f;
+            // Symmetrically rotate the head around local neck pivot
+            glTranslatef(0.0f, 3.0f, -20.0f);
+            glRotatef(deathFactor * 20.0f, 0.0f, 0.0f, 1.0f); // Tilt head to left
+            glTranslatef(0.0f, -3.0f, 20.0f);
+        }
+        drawHat();
+        drawUpperJaw();
+        drawLowerJaw();
+        drawTongue();
+        drawRightEye();
+        drawLeftEye();
+        glPopMatrix();
+
+        if (animation.isHurt || animation.isDead)
+        {
+            glPopAttrib();
+        }
+
+        glPopMatrix();
+    }
 }

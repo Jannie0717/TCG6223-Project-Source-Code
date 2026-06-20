@@ -29,6 +29,8 @@ CaineAnimation::CaineAnimation()
     leanForwardFactor = 0.0f;
     isDead = false;
     deathTimer = 0.0f;
+    isHurt = false;
+    hurtTimer = 0.0f;
 }
 
 /**
@@ -189,4 +191,33 @@ void CaineAnimation::updateLeanForward(float deltaTime)
         if (leanForwardFactor < 0.0f)
             leanForwardFactor = 0.0f;
     }
+}
+
+/**
+ * Updates the damage stun flashing timer.
+ * deltaTime The elapsed frame time in seconds.
+ */
+void CaineAnimation::updateHurtState(float deltaTime)
+{
+    if (!isHurt) return;
+
+    hurtTimer += deltaTime;
+    if (hurtTimer >= 0.5f)
+    {
+        isHurt = false;
+        hurtTimer = 0.0f;
+    }
+}
+
+/**
+ * Activates the hurt state, interrupting active animations.
+ */
+void CaineAnimation::triggerHurt()
+{
+    isHurt = true;
+    hurtTimer = 0.0f;
+
+    // Immediately stop ongoing shooting
+    isShootingState = false;
+    shootingTimer = 0.0f;
 }

@@ -2,8 +2,8 @@
  TCG6223 Computer Graphics
  FIST, Multimedia University
 
- File: CNAworld.hpp
- Objective: Header file of CNAworld.cpp
+  File: CNAworld.hpp (touched for CaineAnimation size change propagation)
+  Objective: Header file of CNAworld.cpp
 
  Reference code from:
  Copyright (C) by Ya-Ping Wong <ypwong@mmu.edu.my>

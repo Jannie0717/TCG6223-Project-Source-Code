@@ -35,6 +35,10 @@ public:
     bool isDead;            // Flag indicating if Caine is dead
     float deathTimer;       // Timer tracking the death and respawn sequence [0.0, 2.0]
 
+    // Hurt/Damage State Variables
+    bool isHurt;            // Flag indicating if Caine is hurt and flashing
+    float hurtTimer;        // Timer tracking hurt duration
+
     /**
      * Constructor that initializes all animation states, timers, and factors to their defaults.
      */
@@ -78,6 +82,17 @@ public:
      * deltaTime The elapsed frame time in seconds.
      */
     void updateLeanForward(float deltaTime);
+
+    /**
+     * Updates the damage stun flashing timer.
+     * deltaTime The elapsed frame time in seconds.
+     */
+    void updateHurtState(float deltaTime);
+
+    /**
+     * Activates the hurt state, interrupting active shooting animations.
+     */
+    void triggerHurt();
 
     /**
      * Applies the multi-stage shooting rotation transformations to the current OpenGL matrix stack.

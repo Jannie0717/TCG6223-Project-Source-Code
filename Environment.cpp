@@ -7,6 +7,11 @@
 
 using namespace ProjectEnvironment;
 
+extern bool showHitboxes;
+extern float boundaryScale;
+
+static void getTransformedCenter(const ObjModel& model, float tx, float tz, float scale, float rotateAngleDegrees, float& outX, float& outZ);
+
 // =======================Local environment object lighting====================== //
 static void enableLocalEnvironmentLight(
     GLenum lightID,
@@ -42,6 +47,60 @@ static void disableLocalEnvironmentLight(GLenum lightID)
     glDisable(lightID);
 }
 // ============================================================================ //
+
+static void drawWireAABB(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+{
+    glBegin(GL_LINE_LOOP);
+        glVertex3f(minX, minY, minZ);
+        glVertex3f(maxX, minY, minZ);
+        glVertex3f(maxX, minY, maxZ);
+        glVertex3f(minX, minY, maxZ);
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+        glVertex3f(minX, maxY, minZ);
+        glVertex3f(maxX, maxY, minZ);
+        glVertex3f(maxX, maxY, maxZ);
+        glVertex3f(minX, maxY, maxZ);
+    glEnd();
+
+    glBegin(GL_LINES);
+        glVertex3f(minX, minY, minZ); glVertex3f(minX, maxY, minZ);
+        glVertex3f(maxX, minY, minZ); glVertex3f(maxX, maxY, minZ);
+        glVertex3f(maxX, minY, maxZ); glVertex3f(maxX, maxY, maxZ);
+        glVertex3f(minX, minY, maxZ); glVertex3f(minX, maxY, maxZ);
+    glEnd();
+}
+
+static void drawWireCylinder(float cx, float cz, float radius, float minY, float maxY, int segments = 24)
+{
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < segments; ++i)
+    {
+        float theta = 2.0f * 3.14159265f * float(i) / float(segments);
+        glVertex3f(cx + radius * std::cos(theta), minY, cz + radius * std::sin(theta));
+    }
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < segments; ++i)
+    {
+        float theta = 2.0f * 3.14159265f * float(i) / float(segments);
+        glVertex3f(cx + radius * std::cos(theta), maxY, cz + radius * std::sin(theta));
+    }
+    glEnd();
+
+    glBegin(GL_LINES);
+    for (int i = 0; i < segments; i += 4)
+    {
+        float theta = 2.0f * 3.14159265f * float(i) / float(segments);
+        float x = cx + radius * std::cos(theta);
+        float z = cz + radius * std::sin(theta);
+        glVertex3f(x, minY, z);
+        glVertex3f(x, maxY, z);
+    }
+    glEnd();
+}
 
 // Glitch Animation Helper Function
 static void drawGlitchPanel(float width, float height, float uShift)
@@ -835,4 +894,401 @@ void Environment::draw() const
 
     // Digital zap-zap circus effect
     drawDigitalEffect();
+
+    // Draw collision wireframes if toggled visible
+    if (showHitboxes)
+    {
+        glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_CURRENT_BIT);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_TEXTURE_2D);
+        glLineWidth(2.0f);
+
+        // 1. Castle Walls (Red/Pink)
+        if (castleWallLoaded)
+        {
+            Vec3 minB, maxB;
+            castleWallModel.getBounds(minB, maxB);
+
+            float w1_minX = minB.x * 10.0f - 66.5f;
+            float w1_maxX = maxB.x * 10.0f - 66.5f;
+            float w1_minZ = minB.z * 10.0f - 66.5f;
+            float w1_maxZ = maxB.z * 10.0f - 66.5f;
+            if (w1_minX > w1_maxX) std::swap(w1_minX, w1_maxX);
+            if (w1_minZ > w1_maxZ) std::swap(w1_minZ, w1_maxZ);
+
+            float w2_minX = -(maxB.x * 10.0f - 66.5f);
+            float w2_maxX = -(minB.x * 10.0f - 66.5f);
+            float w2_minZ = -(maxB.z * 10.0f - 66.5f);
+            float w2_maxZ = -(minB.z * 10.0f - 66.5f);
+            if (w2_minX > w2_maxX) std::swap(w2_minX, w2_maxX);
+            if (w2_minZ > w2_maxZ) std::swap(w2_minZ, w2_maxZ);
+
+            glColor3f(1.0f, 0.3f, 0.3f);
+            drawWireAABB(w1_minX, w1_maxX, -18.7f, 15.0f, w1_minZ, w1_maxZ);
+            drawWireAABB(w2_minX, w2_maxX, -18.7f, 15.0f, w2_minZ, w2_maxZ);
+        }
+
+        // 2. Circus Map boundary limits (Cyan)
+        if (skyBoxLoaded)
+        {
+            Vec3 skyMin, skyMax;
+            skyBoxModel.getBounds(skyMin, skyMax);
+            float bMinX = skyMin.x * boundaryScale;
+            float bMaxX = skyMax.x * boundaryScale;
+            float bMinZ = skyMin.z * boundaryScale;
+            float bMaxZ = skyMax.z * boundaryScale;
+            if (bMinX > bMaxX) std::swap(bMinX, bMaxX);
+            if (bMinZ > bMaxZ) std::swap(bMinZ, bMaxZ);
+
+            glColor3f(0.0f, 0.8f, 1.0f);
+            drawWireAABB(bMinX, bMaxX, -18.7f, 40.0f, bMinZ, bMaxZ);
+        }
+
+        // 3. Interactive Obstacles (Green)
+        glColor3f(0.0f, 1.0f, 0.0f);
+
+        // 3a. Cubes (only if cubeLoaded)
+        if (cubeLoaded)
+        {
+            Vec3 minB, maxB;
+            cubeModel.getBounds(minB, maxB);
+            float hx = (maxB.x - minB.x) * 0.5f;
+            float hz = (maxB.z - minB.z) * 0.5f;
+            float localRadius = std::sqrt(hx * hx + hz * hz);
+            float cubeRad = localRadius;
+
+            float moveX1 = sin(animationTime) * 20.0f;
+            float moveZ2 = cos(animationTime * 0.8f) * 25.0f;
+            float circleX = sin(animationTime * 0.7f) * 25.0f;
+            float circleZ = cos(animationTime * 0.7f) * 25.0f;
+            float moveX4 = sin(animationTime * 0.5f) * 30.0f;
+            float rotateAngle = animationTime * 25.0f;
+
+            // Cube left 1
+            float c1_x, c1_z;
+            getTransformedCenter(cubeModel, -90.0f + moveX1, 100.0f, 8.0f, rotateAngle, c1_x, c1_z);
+            drawWireCylinder(c1_x, c1_z, cubeRad * 8.0f, -18.7f, -18.7f + 16.0f);
+
+            // Cube left 2
+            float c2_x, c2_z;
+            getTransformedCenter(cubeModel, -180.0f, 40.0f + moveZ2, 15.0f, -rotateAngle * 0.8f, c2_x, c2_z);
+            drawWireCylinder(c2_x, c2_z, cubeRad * 15.0f, -18.7f, -18.7f + 30.0f);
+
+            // Cube right 1
+            float c3_x, c3_z;
+            getTransformedCenter(cubeModel, 90.0f + circleX, -130.0f + circleZ, 10.0f, rotateAngle * 1.2f, c3_x, c3_z);
+            drawWireCylinder(c3_x, c3_z, cubeRad * 10.0f, -18.7f, -18.7f + 20.0f);
+
+            // Cube right 2
+            float c4_x, c4_z;
+            getTransformedCenter(cubeModel, 20.0f + moveX4, -210.0f, 17.0f, -rotateAngle * 0.6f, c4_x, c4_z);
+            drawWireCylinder(c4_x, c4_z, cubeRad * 17.0f, -18.7f, -18.7f + 34.0f);
+        }
+
+        // 3b. Pillars (only if pillarLoaded)
+        if (pillarLoaded)
+        {
+            Vec3 minB, maxB;
+            pillarModel.getBounds(minB, maxB);
+            float hx = (maxB.x - minB.x) * 0.5f;
+            float hz = (maxB.z - minB.z) * 0.5f;
+            float localRadius = std::sqrt(hx * hx + hz * hz);
+            float pillarRad = localRadius * 15.0f;
+
+            float p1_x, p1_z;
+            getTransformedCenter(pillarModel, -150.0f, 27.0f, 15.0f, 0.0f, p1_x, p1_z);
+            drawWireCylinder(p1_x, p1_z, pillarRad, -18.7f, 15.0f);
+
+            float p2_x, p2_z;
+            getTransformedCenter(pillarModel, 150.0f, -270.0f, 15.0f, 0.0f, p2_x, p2_z);
+            drawWireCylinder(p2_x, p2_z, pillarRad, -18.7f, 15.0f);
+        }
+
+        // 3c. Irregular Cubes (only if irregularCubeLoaded)
+        if (irregularCubeLoaded)
+        {
+            Vec3 minB, maxB;
+            irregularCubeModel.getBounds(minB, maxB);
+            float hx = (maxB.x - minB.x) * 0.5f;
+            float hz = (maxB.z - minB.z) * 0.5f;
+            float localRadius = std::sqrt(hx * hx + hz * hz);
+
+            float ic1_x, ic1_z;
+            getTransformedCenter(irregularCubeModel, -42.0f, 0.0f, 18.0f, 0.0f, ic1_x, ic1_z);
+            drawWireCylinder(ic1_x, ic1_z, localRadius * 18.0f, -18.7f, 10.0f);
+
+            float ic2_x, ic2_z;
+            getTransformedCenter(irregularCubeModel, -55.0f, 22.0f, 12.0f, 90.0f, ic2_x, ic2_z);
+            drawWireCylinder(ic2_x, ic2_z, localRadius * 12.0f, -18.7f, 5.0f);
+        }
+
+        glPopAttrib();
+    }
+}
+
+/**
+ * Circle-AABB collision check with sliding response against the two castle wall sections.
+ * Returns true if a collision was resolved, writing the new player position to outNewX and outNewZ.
+ */
+bool Environment::checkWallCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const
+{
+    if (!castleWallLoaded)
+    {
+        outNewX = playerX;
+        outNewZ = playerZ;
+        return false;
+    }
+
+    // Get local bounds of the castle wall
+    Vec3 minB, maxB;
+    castleWallModel.getBounds(minB, maxB);
+
+    bool collided = false;
+    outNewX = playerX;
+    outNewZ = playerZ;
+
+    // We have 2 walls:
+    // Wall 1: Translation (-66.5, -18.7, -66.5), Scale (10, 15, 10)
+    // Wall 2: Rotation 180, Translation (-66.5, -18.7, -66.5), Scale (10, 15, 10)
+    
+    // Bounding Box for Wall 1
+    float w1_minX = minB.x * 10.0f - 66.5f;
+    float w1_maxX = maxB.x * 10.0f - 66.5f;
+    float w1_minZ = minB.z * 10.0f - 66.5f;
+    float w1_maxZ = maxB.z * 10.0f - 66.5f;
+    if (w1_minX > w1_maxX) std::swap(w1_minX, w1_maxX);
+    if (w1_minZ > w1_maxZ) std::swap(w1_minZ, w1_maxZ);
+
+    // Bounding Box for Wall 2
+    // X_world = -X_temp, Z_world = -Z_temp
+    // temp_minX = minB.x * 10 - 66.5, temp_maxX = maxB.x * 10 - 66.5
+    // temp_minZ = minB.z * 10 - 66.5, temp_maxZ = maxB.z * 10 - 66.5
+    float w2_minX = -(maxB.x * 10.0f - 66.5f);
+    float w2_maxX = -(minB.x * 10.0f - 66.5f);
+    float w2_minZ = -(maxB.z * 10.0f - 66.5f);
+    float w2_maxZ = -(minB.z * 10.0f - 66.5f);
+    if (w2_minX > w2_maxX) std::swap(w2_minX, w2_maxX);
+    if (w2_minZ > w2_maxZ) std::swap(w2_minZ, w2_maxZ);
+
+    // Resolve collision for both walls sequentially
+    float boxes[2][4] = {
+        {w1_minX, w1_maxX, w1_minZ, w1_maxZ},
+        {w2_minX, w2_maxX, w2_minZ, w2_maxZ}
+    };
+
+    for (int i = 0; i < 2; ++i)
+    {
+        float bMinX = boxes[i][0];
+        float bMaxX = boxes[i][1];
+        float bMinZ = boxes[i][2];
+        float bMaxZ = boxes[i][3];
+
+        // Find closest point on AABB to player
+        float cx = std::max(bMinX, std::min(outNewX, bMaxX));
+        float cz = std::max(bMinZ, std::min(outNewZ, bMaxZ));
+
+        float dx = outNewX - cx;
+        float dz = outNewZ - cz;
+        float dist = std::sqrt(dx * dx + dz * dz);
+
+        if (dist < radius)
+        {
+            collided = true;
+            if (dist > 0.00001f)
+            {
+                // Push player out of AABB
+                outNewX = cx + (dx / dist) * radius;
+                outNewZ = cz + (dz / dist) * radius;
+            }
+            else
+            {
+                // Player center is inside AABB, push to closest edge
+                float distL = outNewX - bMinX;
+                float distR = bMaxX - outNewX;
+                float distB = outNewZ - bMinZ;
+                float distT = bMaxZ - outNewZ;
+
+                float minDist = std::min(std::min(distL, distR), std::min(distB, distT));
+                if (minDist == distL) outNewX = bMinX - radius;
+                else if (minDist == distR) outNewX = bMaxX + radius;
+                else if (minDist == distB) outNewZ = bMinZ - radius;
+                else outNewZ = bMaxZ + radius;
+            }
+        }
+    }
+
+    return collided;
+}
+
+static void getTransformedCenter(const ObjModel& model, float tx, float tz, float scale, float rotateAngleDegrees, float& outX, float& outZ)
+{
+    Vec3 localCenter = model.getCenter();
+    if (std::abs(rotateAngleDegrees) < 0.001f)
+    {
+        outX = tx + localCenter.x * scale;
+        outZ = tz + localCenter.z * scale;
+    }
+    else
+    {
+        float rad = rotateAngleDegrees * 3.14159265f / 180.0f;
+        float rx = localCenter.x * std::cos(rad) + localCenter.z * std::sin(rad);
+        float rz = -localCenter.x * std::sin(rad) + localCenter.z * std::cos(rad);
+        outX = tx + rx * scale;
+        outZ = tz + rz * scale;
+    }
+}
+
+static bool resolveCircleCollision(float playerX, float playerZ, float playerRadius,
+                                   float obstacleX, float obstacleZ, float obstacleRadius,
+                                   float& outNewX, float& outNewZ)
+{
+    float dx = playerX - obstacleX;
+    float dz = playerZ - obstacleZ;
+    float dist = std::sqrt(dx * dx + dz * dz);
+    float minDist = playerRadius + obstacleRadius;
+
+    if (dist < minDist)
+    {
+        if (dist > 0.00001f)
+        {
+            outNewX = obstacleX + (dx / dist) * minDist;
+            outNewZ = obstacleZ + (dz / dist) * minDist;
+        }
+        else
+        {
+            outNewX = obstacleX + minDist;
+            outNewZ = obstacleZ;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool Environment::checkObstacleCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const
+{
+    bool collided = false;
+    outNewX = playerX;
+    outNewZ = playerZ;
+
+    // 1. Cubes (only if cubeLoaded)
+    if (cubeLoaded)
+    {
+        Vec3 minB, maxB;
+        cubeModel.getBounds(minB, maxB);
+        float hx = (maxB.x - minB.x) * 0.5f;
+        float hz = (maxB.z - minB.z) * 0.5f;
+        float localRadius = std::sqrt(hx * hx + hz * hz);
+        float cubeRad = localRadius;
+
+        float moveX1 = sin(animationTime) * 20.0f;
+        float moveZ2 = cos(animationTime * 0.8f) * 25.0f;
+        float circleX = sin(animationTime * 0.7f) * 25.0f;
+        float circleZ = cos(animationTime * 0.7f) * 25.0f;
+        float moveX4 = sin(animationTime * 0.5f) * 30.0f;
+        float rotateAngle = animationTime * 25.0f;
+
+        // Cube left 1 - Scale 8.0f, Translate (-90.0f + moveX1, -18.7f, 100.0f)
+        float c1_x, c1_z;
+        getTransformedCenter(cubeModel, -90.0f + moveX1, 100.0f, 8.0f, rotateAngle, c1_x, c1_z);
+        float c1_rad = cubeRad * 8.0f;
+        if (resolveCircleCollision(outNewX, outNewZ, radius, c1_x, c1_z, c1_rad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+
+        // Cube left 2 - Scale 15.0f, Translate (-180.0f, -18.7f, 40.0f + moveZ2)
+        float c2_x, c2_z;
+        getTransformedCenter(cubeModel, -180.0f, 40.0f + moveZ2, 15.0f, -rotateAngle * 0.8f, c2_x, c2_z);
+        float c2_rad = cubeRad * 15.0f;
+        if (resolveCircleCollision(outNewX, outNewZ, radius, c2_x, c2_z, c2_rad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+
+        // Cube right 1 - Scale 10.0f, Translate (90.0f + circleX, -18.7f, -130.0f + circleZ)
+        float c3_x, c3_z;
+        getTransformedCenter(cubeModel, 90.0f + circleX, -130.0f + circleZ, 10.0f, rotateAngle * 1.2f, c3_x, c3_z);
+        float c3_rad = cubeRad * 10.0f;
+        if (resolveCircleCollision(outNewX, outNewZ, radius, c3_x, c3_z, c3_rad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+
+        // Cube right 2 - Scale 17.0f, Translate (20.0f + moveX4, -18.7f, -210.0f)
+        float c4_x, c4_z;
+        getTransformedCenter(cubeModel, 20.0f + moveX4, -210.0f, 17.0f, -rotateAngle * 0.6f, c4_x, c4_z);
+        float c4_rad = cubeRad * 17.0f;
+        if (resolveCircleCollision(outNewX, outNewZ, radius, c4_x, c4_z, c4_rad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+    }
+
+    // 2. Pillars (only if pillarLoaded)
+    if (pillarLoaded)
+    {
+        Vec3 minB, maxB;
+        pillarModel.getBounds(minB, maxB);
+        float hx = (maxB.x - minB.x) * 0.5f;
+        float hz = (maxB.z - minB.z) * 0.5f;
+        float localRadius = std::sqrt(hx * hx + hz * hz);
+        float pillarRad = localRadius * 15.0f;
+
+        // Front-left pillar - Scale 15.0f, Translate (-150.0f, -18.7f, 27.0f)
+        float p1_x, p1_z;
+        getTransformedCenter(pillarModel, -150.0f, 27.0f, 15.0f, 0.0f, p1_x, p1_z);
+        if (resolveCircleCollision(outNewX, outNewZ, radius, p1_x, p1_z, pillarRad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+
+        // Back-right pillar - Scale 15.0f, Translate (150.0f, -18.7f, -270.0f)
+        float p2_x, p2_z;
+        getTransformedCenter(pillarModel, 150.0f, -270.0f, 15.0f, 0.0f, p2_x, p2_z);
+        if (resolveCircleCollision(outNewX, outNewZ, radius, p2_x, p2_z, pillarRad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+    }
+
+    // 3. Irregular Cubes (only if irregularCubeLoaded)
+    if (irregularCubeLoaded)
+    {
+        Vec3 minB, maxB;
+        irregularCubeModel.getBounds(minB, maxB);
+        float hx = (maxB.x - minB.x) * 0.5f;
+        float hz = (maxB.z - minB.z) * 0.5f;
+        float localRadius = std::sqrt(hx * hx + hz * hz);
+
+        // Abstract prop 1 - Scale 18.0f, Translate (-42.0f, -18.7f, 0.0f)
+        float ic1_x, ic1_z;
+        getTransformedCenter(irregularCubeModel, -42.0f, 0.0f, 18.0f, 0.0f, ic1_x, ic1_z);
+        float ic1_rad = localRadius * 18.0f;
+        if (resolveCircleCollision(outNewX, outNewZ, radius, ic1_x, ic1_z, ic1_rad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+
+        // Abstract prop 2 - Scale 12.0f, Translate (-55.0f, -18.7f, 22.0f), Rotated 90.0
+        float ic2_x, ic2_z;
+        getTransformedCenter(irregularCubeModel, -55.0f, 22.0f, 12.0f, 90.0f, ic2_x, ic2_z);
+        float ic2_rad = localRadius * 12.0f;
+        if (resolveCircleCollision(outNewX, outNewZ, radius, ic2_x, ic2_z, ic2_rad, outNewX, outNewZ))
+        {
+            collided = true;
+        }
+    }
+
+    return collided;
+}
+
+void Environment::getSkyBoxBounds(Vec3& minB, Vec3& maxB) const
+{
+    if (!skyBoxLoaded)
+    {
+        minB = {-20.0f, -20.0f, -20.0f};
+        maxB = {20.0f, 20.0f, 20.0f};
+        return;
+    }
+    skyBoxModel.getBounds(minB, maxB);
 }

@@ -83,6 +83,11 @@ public:
     void triggerDeath();
 
     /**
+     * Triggers the hurt sequence for Caine, initiating the red flash effect.
+     */
+    void triggerHurt();
+
+    /**
      * Sets the uniform scale of the character model.
      * scale The scaling factor to apply uniformly.
      */

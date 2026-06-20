@@ -3,6 +3,7 @@
 #include <cmath>
 #include "Gloinks.hpp"
 
+// Touched for ObjModel/Environment header dependency rebuild
 extern bool showHitboxes;
 
 using namespace ProjectGloinks;

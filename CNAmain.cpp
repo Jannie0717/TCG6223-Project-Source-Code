@@ -107,6 +107,8 @@ static const float MOUSE_SENSITIVITY         =  0.003f;
 static const float KINGER_MOVE_SPEED         =  1.0f;  // world units per key press
 static const float CAMERA_KEY_TURN_INC       =  0.04f; // radians per arrow key
 
+float boundaryScale = 14.5f; // Global scale for the logical boundary of Kinger and camera
+
 float cameraYaw   = 0.0f;  // horizontal camera angle, radians
 float cameraPitch = 0.4f;  // vertical camera angle, radians 
 
@@ -198,17 +200,58 @@ void myDisplayFunc(void)
 
  // The camera's look-at point, offset for an over-the-shoulder view.
  // This offset is now scaled to feel consistent regardless of player size.
- float targetX = kX + rightX * (CAMERA_SHOULDER_OFFSET * kScale);
- float targetZ = kZ + rightZ * (CAMERA_SHOULDER_OFFSET * kScale);
+  float targetX = kX + rightX * (CAMERA_SHOULDER_OFFSET * kScale);
+  float targetZ = kZ + rightZ * (CAMERA_SHOULDER_OFFSET * kScale);
 
- float cosPitch = std::cos(cameraPitch);
- float sinPitch = std::sin(cameraPitch);
+  float cosPitch = std::cos(cameraPitch);
+  float sinPitch = std::sin(cameraPitch);
 
- // The camera's final world position, calculated by orbiting the target point.
- // All distances are now scaled relative to the player model's size.
- float eyeX = targetX + std::sin(cameraYaw) * cosPitch * (CAMERA_DISTANCE * kScale);
- float eyeY = baseTargetY + (CAMERA_BASE_HEIGHT * kScale) + sinPitch * (CAMERA_DISTANCE * kScale);
- float eyeZ = targetZ + std::cos(cameraYaw) * cosPitch * (CAMERA_DISTANCE * kScale);
+  // The camera's ideal displacement vector from target
+  float vx = std::sin(cameraYaw) * cosPitch * (CAMERA_DISTANCE * kScale);
+  float vy = (CAMERA_BASE_HEIGHT * kScale) + sinPitch * (CAMERA_DISTANCE * kScale);
+  float vz = std::cos(cameraYaw) * cosPitch * (CAMERA_DISTANCE * kScale);
+
+  // Retrieve skybox bounds for camera collision limit
+  Vec3 skyMin, skyMax;
+  myvirtualworld.environment.getSkyBoxBounds(skyMin, skyMax);
+  float limitMinX = skyMin.x * boundaryScale;
+  float limitMaxX = skyMax.x * boundaryScale;
+  float limitMinZ = skyMin.z * boundaryScale;
+  float limitMaxZ = skyMax.z * boundaryScale;
+  if (limitMinX > limitMaxX) std::swap(limitMinX, limitMaxX);
+  if (limitMinZ > limitMaxZ) std::swap(limitMinZ, limitMaxZ);
+
+  float margin = 5.0f;
+  float t = 1.0f;
+
+  if (vx > 0.001f)
+  {
+      float tMaxX = ((limitMaxX - margin) - targetX) / vx;
+      if (tMaxX < t) t = tMaxX;
+  }
+  else if (vx < -0.001f)
+  {
+      float tMinX = ((limitMinX + margin) - targetX) / vx;
+      if (tMinX < t) t = tMinX;
+  }
+
+  if (vz > 0.001f)
+  {
+      float tMaxZ = ((limitMaxZ - margin) - targetZ) / vz;
+      if (tMaxZ < t) t = tMaxZ;
+  }
+  else if (vz < -0.001f)
+  {
+      float tMinZ = ((limitMinZ + margin) - targetZ) / vz;
+      if (tMinZ < t) t = tMinZ;
+  }
+
+  if (t < 0.1f) t = 0.1f;
+
+  // The camera's final world position, zoomed in if close to the circus walls
+  float eyeX = targetX + t * vx;
+  float eyeY = baseTargetY + t * vy;
+  float eyeZ = targetZ + t * vz;
 
  const float GROUND_LEVEL = myvirtualworld.kinger.posY;
  if (eyeY < GROUND_LEVEL + 1.0f)
@@ -316,6 +359,12 @@ void myKeyboardFunc(unsigned char key, int x, int y)
     case 'k':
     case 'K':
         myvirtualworld.kinger.takeDamage(100);
+        break;
+
+    // Test Caine Hurt Visual Effect
+    case 'j':
+    case 'J':
+        myvirtualworld.caine.triggerHurt();
         break;
 
     // Caine Hand Animation Trigger & Gloink Hurt Triggers

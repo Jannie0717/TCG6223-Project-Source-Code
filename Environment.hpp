@@ -84,6 +84,11 @@ namespace ProjectEnvironment
         // Glitch Animation
         void drawDigitalEffect() const;
 
+        // Bounding Box Collision
+        bool checkWallCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const;
+        bool checkObstacleCollision(float playerX, float playerZ, float radius, float& outNewX, float& outNewZ) const;
+        void getSkyBoxBounds(Vec3& minB, Vec3& maxB) const;
+
         //Main Draw Function
         void draw() const;
     };

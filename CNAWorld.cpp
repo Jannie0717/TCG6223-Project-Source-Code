@@ -2,8 +2,8 @@
  TCG6223 Computer Graphics
  FIST, Multimedia University
 
- File: CNAworld.cpp
- Objective: show environment / World & declare model file path
+  File: CNAworld.cpp (touched to trigger compilation update for rotation direction correction)
+  Objective: show environment / World & declare model file path
 
  Reference code from:
  Copyright (C) by Ya-Ping Wong <ypwong@mmu.edu.my>

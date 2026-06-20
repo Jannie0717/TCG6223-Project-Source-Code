@@ -248,6 +248,40 @@ void Kinger::update(float deltaTime, float cameraYaw, float cameraPitch, const b
             posZ += step * (normFwd * -std::cos(cameraYaw) + normRgt * -std::sin(cameraYaw));
         }
 
+        // Resolve wall collisions with sliding response
+        float newX = posX;
+        float newZ = posZ;
+        const float collisionRadius = 3.0f * uniformScale;
+        ::myvirtualworld.environment.checkWallCollision(posX, posZ, collisionRadius, newX, newZ);
+        posX = newX;
+        posZ = newZ;
+
+        // Resolve dynamic and static obstacle collisions
+        newX = posX;
+        newZ = posZ;
+        ::myvirtualworld.environment.checkObstacleCollision(posX, posZ, collisionRadius, newX, newZ);
+        posX = newX;
+        posZ = newZ;
+
+        // Clamp to map borders (circus walls) dynamically based on the skybox model's dimensions
+        Vec3 skyMin, skyMax;
+        ::myvirtualworld.environment.getSkyBoxBounds(skyMin, skyMax);
+        
+        float playerOffset = 3.0f * uniformScale;
+        float limitMinX = skyMin.x * boundaryScale + playerOffset;
+        float limitMaxX = skyMax.x * boundaryScale - playerOffset;
+        float limitMinZ = skyMin.z * boundaryScale + playerOffset;
+        float limitMaxZ = skyMax.z * boundaryScale - playerOffset;
+
+        // Ensure bounds are valid in case values are inverted
+        if (limitMinX > limitMaxX) std::swap(limitMinX, limitMaxX);
+        if (limitMinZ > limitMaxZ) std::swap(limitMinZ, limitMaxZ);
+
+        if (posX < limitMinX) posX = limitMinX;
+        if (posX > limitMaxX) posX = limitMaxX;
+        if (posZ < limitMinZ) posZ = limitMinZ;
+        if (posZ > limitMaxZ) posZ = limitMaxZ;
+
         if (keyStates['w'] || keyStates['W']) {
             targetLeanPitch = MAX_LEAN_ANGLE;
         } else if (keyStates['s'] || keyStates['S']) {
