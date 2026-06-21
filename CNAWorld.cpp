@@ -473,6 +473,14 @@ void MyVirtualWorld::init()
     caine.leftEyeTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_LeftEye.png");
     caine.rightEyeTextureID = TextureLoader::loadTexture("Model/Caine/Textures/Caine_RightEye.png");
 
+    for (int i = 0; i < 4; i++)
+    {
+        if (caine.clones[i])
+        {
+            caine.clones[i]->copyModelDataFrom(caine);
+        }
+    }
+
     //////////////////////////////////Butterfly//////////////////////////////////
     butterfly.leftWingTextureID = TextureLoader::loadTexture(
         "Model/Butterfly/Textures/Butterfly_LeftWing.png"
@@ -580,11 +588,13 @@ void MyVirtualWorld::tickTime(float cameraYaw, float cameraPitch, const bool* ke
 
 extern bool isWinDelayed;
 extern float winDelayTimer;
+extern bool isTestArena;
 
 void MyVirtualWorld::resetGame()
 {
     isWinDelayed = false;
     winDelayTimer = 0.0f;
+    isTestArena = false;
 
     // Clear Gloinks
     gloinks.animation.activeGloinks.clear();

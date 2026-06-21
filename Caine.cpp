@@ -6,6 +6,7 @@
 
 extern ProjectWorld::MyVirtualWorld myvirtualworld;
 extern bool showHitboxes;
+extern bool isTestArena;
 
 using namespace ProjectCaine;
 
@@ -22,7 +23,8 @@ static const float CAINE_LAYDOWN_SHIFT_Y = 8.0f;
 /**
  * Construct a new Caine object and initialize all loading flags, positions, scales, and spawn state.
  */
-Caine::Caine()
+Caine::Caine(bool isClone)
+    : isClone(isClone)
 {
     hatLoaded = false;
     leftHandLoaded = false;
@@ -105,6 +107,88 @@ Caine::Caine()
     sweepTimer = 0.0f;
     sweepInterval = 2.0f;
     wasLayingDown = false;
+    testArenaSweepMode = false;
+
+    doctorStrangeState = 0;
+    doctorStrangeTimer = 0.0f;
+    particleSpawnTimer = 0.0f;
+
+    if (!isClone)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            clones[i] = new Caine(true);
+        }
+    }
+    else
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            clones[i] = nullptr;
+        }
+    }
+}
+
+Caine::~Caine()
+{
+    if (!isClone)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            delete clones[i];
+            clones[i] = nullptr;
+        }
+    }
+}
+
+void Caine::copyModelDataFrom(const Caine& other)
+{
+    hatModel = other.hatModel;
+    leftHandModel = other.leftHandModel;
+    leftLegModel = other.leftLegModel;
+    leftPalmModel = other.leftPalmModel;
+    lowerJawModel = other.lowerJawModel;
+    rightHandModel = other.rightHandModel;
+    rightLegModel = other.rightLegModel;
+    rightPalmModel = other.rightPalmModel;
+    staffModel = other.staffModel;
+    tongueModel = other.tongueModel;
+    tursoModel = other.tursoModel;
+    upperJawModel = other.upperJawModel;
+    leftEyeModel = other.leftEyeModel;
+    rightEyeModel = other.rightEyeModel;
+
+    hatLoaded = other.hatLoaded;
+    leftHandLoaded = other.leftHandLoaded;
+    leftLegLoaded = other.leftLegLoaded;
+    leftPalmLoaded = other.leftPalmLoaded;
+    lowerJawLoaded = other.lowerJawLoaded;
+    rightHandLoaded = other.rightHandLoaded;
+    rightLegLoaded = other.rightLegLoaded;
+    rightPalmLoaded = other.rightPalmLoaded;
+    staffLoaded = other.staffLoaded;
+    tongueLoaded = other.tongueLoaded;
+    tursoLoaded = other.tursoLoaded;
+    upperJawLoaded = other.upperJawLoaded;
+    leftEyeLoaded = other.leftEyeLoaded;
+    rightEyeLoaded = other.rightEyeLoaded;
+
+    hatTextureID = other.hatTextureID;
+    leftHandTextureID = other.leftHandTextureID;
+    leftLegTextureID = other.leftLegTextureID;
+    leftPalmTextureID = other.leftPalmTextureID;
+    lowerJawTextureID = other.lowerJawTextureID;
+    rightHandTextureID = other.rightHandTextureID;
+    rightLegTextureID = other.rightLegTextureID;
+    rightPalmTextureID = other.rightPalmTextureID;
+    staffTextureID = other.staffTextureID;
+    tongueTextureID = other.tongueTextureID;
+    tursoTextureID = other.tursoTextureID;
+    upperJawTextureID = other.upperJawTextureID;
+    leftEyeTextureID = other.leftEyeTextureID;
+    rightEyeTextureID = other.rightEyeTextureID;
+
+    uniformScale = other.uniformScale;
 }
 
 void Caine::resetAI()
@@ -120,6 +204,10 @@ void Caine::resetAI()
     teleportTransitionTimer = 0.0f;
     visualScaleFactor = 1.0f;
     facingYaw = 0.0f;
+    testArenaSweepMode = false;
+    doctorStrangeState = 0;
+    doctorStrangeTimer = 0.0f;
+    particleSpawnTimer = 0.0f;
 
     // Reset Caine position to spawn
     if (spawnPositionSaved)
@@ -161,6 +249,17 @@ void Caine::resetAI()
     sweepInterval = 2.0f;
     nextSweepDirection = rand() % 4;
     wasLayingDown = false;
+
+    if (!isClone)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (clones[i])
+            {
+                clones[i]->resetAI();
+            }
+        }
+    }
 }
 
 /**
@@ -176,6 +275,106 @@ void Caine::update(float deltaTime)
         spawnY = posY;
         spawnZ = posZ;
         spawnPositionSaved = true;
+    }
+
+    if (isClone)
+    {
+        testArenaSweepMode = false;
+        sweepActive = false;
+        animation.isLayingDown = false;
+        animation.isLaughing = false;
+        isTransitioning = false;
+    }
+    else if (isTestArena)
+    {
+        if (doctorStrangeState == 1)
+        {
+            doctorStrangeTimer += deltaTime;
+            
+            particleSpawnTimer += deltaTime;
+            if (particleSpawnTimer >= 0.1f)
+            {
+                particleSpawnTimer = 0.0f;
+                spawnTeleportPoof(posX, posY, posZ);
+            }
+
+            if (doctorStrangeTimer >= 3.0f)
+            {
+                for (int i = 0; i < MAX_TELEPORT_PARTICLES; i++)
+                {
+                    teleportParticles[i].active = false;
+                }
+
+                float spotsX[5];
+                float spotsZ[5];
+                float spotsY[5];
+                for (int j = 0; j < 5; j++)
+                {
+                    spotsX[j] = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / 200.0f);
+                    spotsZ[j] = -180.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / 230.0f);
+                    spotsY[j] = CAINE_HOVER_HEIGHT_Y + (-5.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / 10.0f));
+                }
+
+                int realSpot = rand() % 5;
+                posX = spotsX[realSpot];
+                posY = spotsY[realSpot];
+                posZ = spotsZ[realSpot];
+                spawnTeleportPoof(posX, posY, posZ);
+
+                int cloneIdx = 0;
+                for (int j = 0; j < 5; j++)
+                {
+                    if (j == realSpot) continue;
+                    Caine* clone = clones[cloneIdx++];
+                    if (clone)
+                    {
+                        clone->posX = spotsX[j];
+                        clone->posY = spotsY[j];
+                        clone->posZ = spotsZ[j];
+                        clone->testArenaSweepMode = false;
+                        clone->sweepActive = false;
+                        clone->animation.isLayingDown = false;
+                        clone->animation.isLaughing = false;
+                        clone->animation.isDead = false;
+                        clone->animation.isHurt = false;
+                        clone->currentHealth = clone->maxHealth;
+                        clone->aiTeleportTimer = 0.0f;
+                        clone->aiTargetX = -120.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 240.0f));
+                        clone->aiTargetZ = -200.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 300.0f));
+                        
+                        for (int k = 0; k < MAX_TELEPORT_PARTICLES; k++)
+                        {
+                            clone->teleportParticles[k].active = false;
+                        }
+                        clone->spawnTeleportPoof(clone->posX, clone->posY, clone->posZ);
+                    }
+                }
+
+                doctorStrangeState = 2;
+                doctorStrangeTimer = 0.0f;
+            }
+        }
+        else if (doctorStrangeState == 2)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (clones[i])
+                {
+                    clones[i]->update(deltaTime);
+                }
+            }
+        }
+        else if (doctorStrangeState == 3)
+        {
+            doctorStrangeTimer += deltaTime;
+            if (doctorStrangeTimer >= 5.0f)
+            {
+                doctorStrangeState = 0;
+                doctorStrangeTimer = 0.0f;
+                animation.isLeaningForward = false;
+                animation.leanForwardFactor = 0.0f;
+            }
+        }
     }
 
     // Accumulate death timer if Caine is dead
@@ -289,6 +488,17 @@ void Caine::update(float deltaTime)
                 }
             }
         }
+        else if (isTestArena && !isClone && (doctorStrangeState == 1 || doctorStrangeState == 3))
+        {
+            if (doctorStrangeState == 3)
+            {
+                animation.isLeaningForward = true;
+                animation.leanForwardFactor = 1.0f;
+                animation.isLayingDown = false;
+                animation.layDownFactor = 0.0f;
+                animation.isLaughing = false;
+            }
+        }
         else
         {
             // 1. Maintain a constant height level of 2x the player model's height above the ground plane
@@ -300,15 +510,18 @@ void Caine::update(float deltaTime)
         float dz = ::myvirtualworld.kinger.posZ - posZ;
         facingYaw = std::atan2(dx, dz) * 57.2957795f; // convert to degrees
 
-        // 3. Handle Teleportation Cycle
-        if (!isTeleporting && !isAppearing)
+        // 3. Handle Teleportation and Flight Behavior
+        if (isClone || (!isTeleporting && !isAppearing))
         {
-            // Update teleport cooldown
-            aiTeleportTimer += deltaTime;
-            if (aiTeleportTimer >= aiTeleportInterval)
+            if (!isClone)
             {
-                isTeleporting = true;
-                teleportTransitionTimer = 0.0f;
+                // Update teleport cooldown
+                aiTeleportTimer += deltaTime;
+                if (aiTeleportTimer >= aiTeleportInterval)
+                {
+                    isTeleporting = true;
+                    teleportTransitionTimer = 0.0f;
+                }
             }
 
             // Normal flight behavior
@@ -334,7 +547,7 @@ void Caine::update(float deltaTime)
             }
 
             // 4. Handle shooting at the player (only in default state, not in LayDown or LeaningForward)
-            if (!animation.isLayingDown && !animation.isLeaningForward)
+            if (!animation.isLayingDown && !animation.isLeaningForward && (!isTestArena || isClone || doctorStrangeState != 2))
             {
                 shootCooldownTimer += deltaTime;
                 if (shootCooldownTimer >= shootInterval)
@@ -375,7 +588,20 @@ void Caine::update(float deltaTime)
                 animation.isLeaningForward = false;
                 animation.isShootingState = false;
                 
-                if (rand() % 2 == 0)
+                if (isTestArena)
+                {
+                    if (testArenaSweepMode)
+                    {
+                        animation.isLaughing = true;
+                        animation.isLayingDown = true;
+                    }
+                    else
+                    {
+                        animation.isLaughing = false;
+                        animation.isLayingDown = false;
+                    }
+                }
+                else if (rand() % 2 == 0)
                 {
                     animation.isLaughing = true;
                     animation.isLayingDown = true;
@@ -635,6 +861,37 @@ void Caine::setScale(float scale)
 
 void Caine::takeDamage(int amount)
 {
+    if (isClone)
+    {
+        triggerHurt();
+        return;
+    }
+
+    if (isTestArena && !isClone && doctorStrangeState == 2)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (clones[i])
+            {
+                spawnTeleportPoof(clones[i]->posX, clones[i]->posY, clones[i]->posZ);
+                for (int k = 0; k < MAX_CAINE_PROJECTILES; k++)
+                {
+                    clones[i]->projectiles[k].active = false;
+                }
+            }
+        }
+        doctorStrangeState = 3;
+        doctorStrangeTimer = 0.0f;
+        animation.isLeaningForward = true;
+        animation.leanForwardFactor = 1.0f;
+        animation.isLayingDown = false;
+        animation.layDownFactor = 0.0f;
+        animation.isLaughing = false;
+        sweepActive = false;
+        triggerHurt();
+        return;
+    }
+
     if (isTransitioning) return; // Invincible during transition state!
     if (animation.isHurt || animation.isDead) return;
 
@@ -642,7 +899,13 @@ void Caine::takeDamage(int amount)
     if (currentHealth <= 0)
     {
         currentHealth = 0;
-        if (currentPhase < 3)
+        if (isTestArena)
+        {
+            currentHealth = maxHealth;
+            animation.isHurt = false;
+            animation.hurtTimer = 0.0f;
+        }
+        else if (currentPhase < 3)
         {
             currentPhase++;
             isTransitioning = true;
@@ -1442,7 +1705,11 @@ void Caine::draw() const
         return;
 
     bool shouldRender = true;
-    if (animation.isHurt)
+    if (isTestArena && !isClone && doctorStrangeState == 1)
+    {
+        shouldRender = false;
+    }
+    else if (animation.isHurt)
     {
         // Toggle visibility every 0.05 seconds (10 Hz blink rate)
         if (std::fmod(animation.hurtTimer, 0.1f) < 0.05f)
@@ -1649,5 +1916,16 @@ void Caine::draw() const
         glPopMatrix();
 
         glPopAttrib();
+    }
+
+    if (isTestArena && !isClone && doctorStrangeState == 2)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (clones[i])
+            {
+                clones[i]->draw();
+            }
+        }
     }
 }

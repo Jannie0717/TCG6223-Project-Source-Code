@@ -7,6 +7,7 @@
 
 // Global scope reference to the main world instance
 extern ProjectWorld::MyVirtualWorld myvirtualworld;
+extern bool isTestArena;
 
 using namespace ProjectKinger;
 
@@ -140,6 +141,8 @@ void Kinger::jump()
  */
 void Kinger::takeDamage(int amount)
 {
+    if (isTestArena) return;
+
     if (animation.isHurt || animation.isRolling || animation.isDead) return;
 
     currentHealth -= amount;

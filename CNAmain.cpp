@@ -134,6 +134,7 @@ enum GameUIState { START_MENU, GAMEPLAY, PAUSE_MENU, DEATH_SCREEN, WIN_SCREEN };
 GameUIState currentUIState = START_MENU;
 bool isWinDelayed = false;
 float winDelayTimer = 0.0f;
+bool isTestArena = false;
 
 static void drawCenteredString(void* font, const char* str, float y, float left, float right);
 
@@ -357,6 +358,58 @@ void drawHUD()
     glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "F", tipsLeft + 12.0f, startY - 4.0f * spacing);
     glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "- Heal Skill", tipsLeft + 60.0f, startY - 4.0f * spacing);
 
+    if (isTestArena)
+    {
+        float taLeft = 30.0f;
+        float taTop = window.height - 30.0f;
+        float taWidth = 250.0f;
+        float taHeight = 95.0f;
+        float taRight = taLeft + taWidth;
+        float taBottom = taTop - taHeight;
+
+        // Background
+        glColor4f(0.08f, 0.08f, 0.12f, 0.7f);
+        glBegin(GL_QUADS);
+            glVertex2f(taLeft, taBottom);
+            glVertex2f(taRight, taBottom);
+            glVertex2f(taRight, taTop);
+            glVertex2f(taLeft, taTop);
+        glEnd();
+
+        // Border
+        glLineWidth(1.5f);
+        glColor4f(0.85f, 0.65f, 0.12f, 0.5f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(taLeft, taBottom);
+            glVertex2f(taRight, taBottom);
+            glVertex2f(taRight, taTop);
+            glVertex2f(taLeft, taTop);
+        glEnd();
+
+        float taStartY = taTop - 15.0f;
+        float taSpacing = 18.0f;
+
+        // Title
+        glColor4f(1.0f, 0.84f, 0.0f, 1.0f); // Gold
+        drawString(GLUT_BITMAP_HELVETICA_12, "TEST ARENA CONTROLS", taLeft + 12.0f, taStartY);
+
+        taStartY -= 18.0f;
+        // Key 1
+        glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "[1]", taLeft + 12.0f, taStartY);
+        glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "Spawn Caine (Shoot & Move)", taLeft + 40.0f, taStartY);
+
+        // Key 2
+        glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "[2]", taLeft + 12.0f, taStartY - taSpacing);
+        glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "Spawn Caine (Sweep Attack)", taLeft + 40.0f, taStartY - taSpacing);
+
+        // Key 3
+        glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "[3]", taLeft + 12.0f, taStartY - 2.0f * taSpacing);
+        glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "Spawn Gloinks (Max 10)", taLeft + 40.0f, taStartY - 2.0f * taSpacing);
+
+        // Key 4
+        glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "[4]", taLeft + 12.0f, taStartY - 3.0f * taSpacing);
+        glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "Doctor Strange Clones Move", taLeft + 40.0f, taStartY - 3.0f * taSpacing);
+    }
 
     // ==========================================
     // 3. Caine Boss Health Bar (Top Center)
@@ -660,8 +713,8 @@ void drawMenuUI()
         glEnd();
 
         // Options
-        float startY = top - 130.0f;
-        float spacing = 45.0f;
+        float startY = top - 120.0f;
+        float spacing = 40.0f;
 
         // Start Game
         glColor4f(0.0f, 0.9f, 0.5f, 1.0f);
@@ -675,11 +728,17 @@ void drawMenuUI()
         glColor4f(0.95f, 0.95f, 0.95f, 1.0f);
         drawString(GLUT_BITMAP_HELVETICA_18, "Debug Environment", left + 100.0f, startY - spacing);
 
+        // Test Arena
+        glColor4f(0.0f, 0.9f, 0.5f, 1.0f);
+        drawString(GLUT_BITMAP_HELVETICA_18, "[3]", left + 60.0f, startY - 2.0f * spacing);
+        glColor4f(0.95f, 0.95f, 0.95f, 1.0f);
+        drawString(GLUT_BITMAP_HELVETICA_18, "Test Arena", left + 100.0f, startY - 2.0f * spacing);
+
         // Exit Game
         glColor4f(1.0f, 0.3f, 0.3f, 1.0f);
-        drawString(GLUT_BITMAP_HELVETICA_18, "[0]", left + 60.0f, startY - 2.0f * spacing - 15.0f);
+        drawString(GLUT_BITMAP_HELVETICA_18, "[0]", left + 60.0f, startY - 3.0f * spacing - 15.0f);
         glColor4f(0.90f, 0.90f, 0.90f, 1.0f);
-        drawString(GLUT_BITMAP_HELVETICA_18, "Exit Game", left + 100.0f, startY - 2.0f * spacing - 15.0f);
+        drawString(GLUT_BITMAP_HELVETICA_18, "Exit Game", left + 100.0f, startY - 3.0f * spacing - 15.0f);
 
         // Footer
         glColor4f(0.6f, 0.6f, 0.6f, 0.7f);
@@ -1222,17 +1281,27 @@ void myKeyboardFunc(unsigned char key, int x, int y)
   {
       switch (key)
       {
-          case '1':
-              myvirtualworld.startGame();
-              currentUIState = GAMEPLAY;
-              break;
-          case '2':
-              myvirtualworld.debugEnvironment();
-              currentUIState = GAMEPLAY;
-              break;
-          case '0':
-              exit(0);
-              break;
+            case '1':
+                isTestArena = false;
+                myvirtualworld.startGame();
+                currentUIState = GAMEPLAY;
+                break;
+            case '2':
+                isTestArena = false;
+                myvirtualworld.debugEnvironment();
+                currentUIState = GAMEPLAY;
+                break;
+            case '3':
+                isTestArena = true;
+                myvirtualworld.resetGame();
+                isTestArena = true; // resetGame sets isTestArena = false, so force it back
+                myvirtualworld.isCaineActive = false;
+                myvirtualworld.isGloinksActive = false;
+                currentUIState = GAMEPLAY;
+                break;
+            case '0':
+                exit(0);
+                break;
       }
       glutPostRedisplay();
       return;
@@ -1243,17 +1312,24 @@ void myKeyboardFunc(unsigned char key, int x, int y)
   {
       switch (key)
       {
-          case '1':
-              if (myvirtualworld.isDebugMode)
-              {
-                  myvirtualworld.debugEnvironment();
-              }
-              else
-              {
-                  myvirtualworld.startGame();
-              }
-              currentUIState = GAMEPLAY;
-              break;
+           case '1':
+               if (isTestArena)
+               {
+                   myvirtualworld.resetGame();
+                   isTestArena = true; // resetGame sets isTestArena = false, so force it back
+                   myvirtualworld.isCaineActive = false;
+                   myvirtualworld.isGloinksActive = false;
+               }
+               else if (myvirtualworld.isDebugMode)
+               {
+                   myvirtualworld.debugEnvironment();
+               }
+               else
+               {
+                   myvirtualworld.startGame();
+               }
+               currentUIState = GAMEPLAY;
+               break;
           case '2':
               myvirtualworld.resetGame();
               currentUIState = START_MENU;
@@ -1316,18 +1392,94 @@ void myKeyboardFunc(unsigned char key, int x, int y)
          break;
 
      // Caine Hand Animation Trigger & Gloink Hurt Triggers (Only active in Debug Environment)
-     case '1':
-         if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(0);
-         break;
-     case '2':
-         if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(1);
-         break;
-     case '3':
-         if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(2);
-         break;
-     case '4':
-         if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(3);
-         break;
+      case '1':
+          if (isTestArena)
+          {
+              myvirtualworld.isCaineActive = true;
+              myvirtualworld.isGloinksActive = false;
+              myvirtualworld.gloinks.animation.activeGloinks.clear();
+              myvirtualworld.caine.animation.isLayingDown = false;
+              myvirtualworld.caine.animation.layDownFactor = 0.0f;
+              myvirtualworld.caine.sweepActive = false;
+              myvirtualworld.caine.animation.isLaughing = false;
+              myvirtualworld.caine.currentHealth = myvirtualworld.caine.maxHealth;
+              myvirtualworld.caine.animation.isDead = false;
+              myvirtualworld.caine.animation.deathTimer = 0.0f;
+              myvirtualworld.caine.testArenaSweepMode = false;
+              myvirtualworld.caine.doctorStrangeState = 0;
+          }
+          else if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(0);
+          break;
+      case '2':
+          if (isTestArena)
+          {
+              myvirtualworld.isCaineActive = true;
+              myvirtualworld.isGloinksActive = false;
+              myvirtualworld.gloinks.animation.activeGloinks.clear();
+              myvirtualworld.caine.animation.isLayingDown = true;
+              myvirtualworld.caine.animation.isLaughing = true;
+              myvirtualworld.caine.animation.layDownFactor = 1.0f;
+              myvirtualworld.caine.sweepActive = true;
+              myvirtualworld.caine.sweepDirection = rand() % 4;
+              myvirtualworld.caine.sweepCurrentPos = (myvirtualworld.caine.sweepDirection == 0 || myvirtualworld.caine.sweepDirection == 2) ? -290.0f : 290.0f;
+              myvirtualworld.caine.sweepTimer = 0.0f;
+              myvirtualworld.caine.sweepInterval = 2.0f;
+              myvirtualworld.caine.nextSweepDirection = rand() % 4;
+              myvirtualworld.caine.currentHealth = myvirtualworld.caine.maxHealth;
+              myvirtualworld.caine.animation.isDead = false;
+              myvirtualworld.caine.animation.deathTimer = 0.0f;
+              myvirtualworld.caine.testArenaSweepMode = true;
+              myvirtualworld.caine.doctorStrangeState = 0;
+          }
+          else if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(1);
+          break;
+      case '3':
+          if (isTestArena)
+          {
+              myvirtualworld.isCaineActive = false;
+              myvirtualworld.isGloinksActive = true;
+              myvirtualworld.gloinks.animation.activeGloinks.clear();
+              for (int i = 0; i < myvirtualworld.caine.MAX_CAINE_PROJECTILES; i++)
+              {
+                  myvirtualworld.caine.projectiles[i].active = false;
+              }
+              // Reset Caine to spawn
+              myvirtualworld.caine.posX = 0.0f;
+              myvirtualworld.caine.posY = 0.0f;
+              myvirtualworld.caine.posZ = -120.0f;
+              myvirtualworld.caine.doctorStrangeState = 0;
+          }
+          else if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(2);
+          break;
+      case '4':
+          if (isTestArena)
+          {
+              myvirtualworld.isCaineActive = true;
+              myvirtualworld.isGloinksActive = false;
+              myvirtualworld.gloinks.animation.activeGloinks.clear();
+              
+              myvirtualworld.caine.doctorStrangeState = 1;
+              myvirtualworld.caine.doctorStrangeTimer = 0.0f;
+              myvirtualworld.caine.particleSpawnTimer = 0.0f;
+              myvirtualworld.caine.currentHealth = myvirtualworld.caine.maxHealth;
+              myvirtualworld.caine.animation.isDead = false;
+              myvirtualworld.caine.animation.deathTimer = 0.0f;
+              myvirtualworld.caine.animation.isLayingDown = false;
+              myvirtualworld.caine.animation.layDownFactor = 0.0f;
+              myvirtualworld.caine.sweepActive = false;
+              myvirtualworld.caine.animation.isLaughing = false;
+              myvirtualworld.caine.testArenaSweepMode = false;
+              
+              // Clear active Caine projectiles
+              for (int i = 0; i < myvirtualworld.caine.MAX_CAINE_PROJECTILES; i++)
+              {
+                  myvirtualworld.caine.projectiles[i].active = false;
+              }
+              // Spawn initial teleport poof at current location
+              myvirtualworld.caine.spawnTeleportPoof(myvirtualworld.caine.posX, myvirtualworld.caine.posY, myvirtualworld.caine.posZ);
+          }
+          else if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(3);
+          break;
      case '5':
          if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(4);
          break;
