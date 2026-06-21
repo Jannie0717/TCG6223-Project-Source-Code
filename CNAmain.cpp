@@ -112,7 +112,7 @@ static const float CAMERA_KEY_TURN_INC       =  0.04f; // radians per arrow key
 float boundaryScale = 14.5f; // Global scale for the logical boundary of Kinger and camera
 
 float cameraYaw   = 0.0f;  // horizontal camera angle, radians
-float cameraPitch = 0.4f;  // vertical camera angle, radians 
+float cameraPitch = 0.4f;  // vertical camera angle, radians
 
 
 float cameraTrackY = -18.7f;
@@ -252,7 +252,7 @@ void drawHUD()
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
-    
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -476,7 +476,7 @@ void drawHUD()
                 // Color dynamically shifts depending on Caine's current phase
                 float rStart = 0.7f, gStart = 0.1f, bStart = 0.7f; // Phase 1: Vibrant Purple
                 float rEnd = 0.95f, gEnd = 0.2f, bEnd = 0.95f;
-                
+
                 if (myvirtualworld.caine.currentPhase == 2) // Phase 2: Orange/Gold
                 {
                     rStart = 0.9f; gStart = 0.3f; bStart = 0.0f;
@@ -528,7 +528,7 @@ void drawHUD()
         for (int wIdx = 0; wIdx < numWarnings; wIdx++)
         {
             int sweepDir = (wIdx == 0) ? myvirtualworld.caine.nextSweepDirection : myvirtualworld.caine.nextSweepDirection2;
-            
+
             float sweepT = myvirtualworld.caine.sweepTimer;
             float sweepI = myvirtualworld.caine.sweepInterval;
 
@@ -699,7 +699,7 @@ void drawMenuUI()
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
-    
+
     // Enable blending for transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1122,7 +1122,7 @@ void updateKeyStatesFromWindows()
 void myDisplayFunc(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
+
   // Get player position and scale for camera calculations
   float& kX = myvirtualworld.kinger.posX;
   float& kZ = myvirtualworld.kinger.posZ;
@@ -1160,7 +1160,7 @@ void myDisplayFunc(void)
               // Clear Kinger bullets
               myvirtualworld.kinger.animation.isBulletActive = false;
           }
-          
+
           winDelayTimer += deltaTime;
           if (winDelayTimer >= 5.0f)
           {
@@ -1249,7 +1249,7 @@ void myDisplayFunc(void)
   {
       hasStartedDeathSeq = false;
   }
- 
+
  // Smoothly follow the player's Y position
  cameraTrackY += (myvirtualworld.kinger.posY - cameraTrackY) * CAMERA_FOLLOW_SPEED * deltaTime;
 
@@ -1342,7 +1342,7 @@ void myDisplayFunc(void)
   {
       ProjectCaine::Caine& boss = myvirtualworld.caine;
       Vec3 caineCenter = boss.getCaineWorldCenter();
-      
+
       // Calculate normalized direction from State 1 start to Caine's center
       float sdx = caineCenter.x - deathSeqCamStartEyeX;
       float sdy = caineCenter.y - deathSeqCamStartEyeY;
@@ -1490,8 +1490,8 @@ void myDisplayFunc(void)
   glLoadIdentity();
   gluLookAt(
       drawEyeX + shakeX,    drawEyeY + shakeY,        drawEyeZ + shakeZ,
-      drawTargetX + shakeX, drawTargetY + shakeY, drawTargetZ + shakeZ, 
-      0.0f,    1.0f,        0.0f 
+      drawTargetX + shakeX, drawTargetY + shakeY, drawTargetZ + shakeZ,
+      0.0f,    1.0f,        0.0f
   );
 
  glPushMatrix();
@@ -1774,7 +1774,7 @@ void myKeyboardFunc(unsigned char key, int x, int y)
               myvirtualworld.isCaineActive = true;
               myvirtualworld.isGloinksActive = false;
               myvirtualworld.gloinks.animation.activeGloinks.clear();
-              
+
               myvirtualworld.caine.doctorStrangeState = 1;
               myvirtualworld.caine.doctorStrangeTimer = 0.0f;
               myvirtualworld.caine.particleSpawnTimer = 0.0f;
@@ -1786,7 +1786,7 @@ void myKeyboardFunc(unsigned char key, int x, int y)
               myvirtualworld.caine.sweepActive = false;
               myvirtualworld.caine.animation.isLaughing = false;
               myvirtualworld.caine.testArenaSweepMode = false;
-              
+
               // Clear active Caine projectiles
               for (int i = 0; i < myvirtualworld.caine.MAX_CAINE_PROJECTILES; i++)
               {
@@ -1812,13 +1812,13 @@ void myKeyboardFunc(unsigned char key, int x, int y)
               myvirtualworld.caine.animation.deathTimer = 0.0f;
               myvirtualworld.caine.testArenaSweepMode = false;
               myvirtualworld.caine.doctorStrangeState = 0;
-              
+
               // Clear active Caine projectiles
               for (int i = 0; i < myvirtualworld.caine.MAX_CAINE_PROJECTILES; i++)
               {
                   myvirtualworld.caine.projectiles[i].active = false;
               }
-              
+
               myvirtualworld.environment.isMeteorModeActive = true;
           }
           else if (myvirtualworld.isDebugMode) myvirtualworld.gloinks.hurtGloink(4);
@@ -2108,9 +2108,14 @@ void myInit()
   myDataInit();
 
   glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH );
-  glutInitWindowPosition(window.posX, window.posY); // Set top-left position
-  glutInitWindowSize(window.width, window.height); //Set width and height
-  glutCreateWindow(window.title.c_str());// Create display window
+  // Get screen size first
+  window.width = glutGet(GLUT_SCREEN_WIDTH) - 20;
+  window.height = glutGet(GLUT_SCREEN_HEIGHT) - 80;
+
+  // Create a large window that almost fills the screen
+  glutInitWindowPosition(0, 0);
+  glutInitWindowSize(window.width, window.height);
+  glutCreateWindow(window.title.c_str());
 
   glutDisplayFunc(myDisplayFunc);
   glutReshapeFunc(myReshapeFunc);
