@@ -853,8 +853,8 @@ void Caine::update(float deltaTime)
                 if (hit)
                 {
                     int damage = 4;
-                    if (currentPhase == 2) damage = 2;
-                    else if (currentPhase == 3) damage = 3;
+                    if (currentPhase == 2) damage = 5;
+                    else if (currentPhase == 3) damage = 5;
 
                     ::myvirtualworld.kinger.takeDamage(damage); 
                 }
@@ -909,7 +909,7 @@ void Caine::update(float deltaTime)
 
                 if (hit)
                 {
-                    int damage = 3; // Phase 3 sweep damage
+                    int damage = 5; // Phase 3 sweep damage
                     ::myvirtualworld.kinger.takeDamage(damage);
                 }
             }

@@ -282,10 +282,13 @@ void drawHUD()
     // ==========================================
     // 1. Kinger Health Bar (Bottom Left)
     // ==========================================
-    float barWidth = 200.0f;
-    float barHeight = 16.0f;
-    float left = 30.0f;
-    float bottom = 30.0f;
+    // ==========================================
+    // 1. Kinger Health Bar (Bottom Left)
+    // ==========================================
+    float barWidth = 250.0f;
+    float barHeight = 20.0f;
+    float left = 35.0f;
+    float bottom = 35.0f;
     float right = left + barWidth;
     float top = bottom + barHeight;
 
@@ -293,15 +296,15 @@ void drawHUD()
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     char kingerHealthText[64];
     sprintf(kingerHealthText, "KINGER  %d / %d", myvirtualworld.kinger.currentHealth, myvirtualworld.kinger.maxHealth);
-    drawString(GLUT_BITMAP_HELVETICA_12, kingerHealthText, left, top + 6.0f);
+    drawString(GLUT_BITMAP_HELVETICA_18, kingerHealthText, left, top + 8.0f);
 
     char kingerAmmoText[64];
     sprintf(kingerAmmoText, "Ammo: %d / %d", myvirtualworld.kinger.animation.currentAmmo, myvirtualworld.kinger.animation.MAX_AMMO);
-    drawString(GLUT_BITMAP_HELVETICA_12, kingerAmmoText, left, top + 20.0f);
+    drawString(GLUT_BITMAP_HELVETICA_18, kingerAmmoText, left, top + 28.0f);
 
     char kingerHealText[64];
     sprintf(kingerHealText, "Heal: %d/%d", myvirtualworld.kinger.animation.butterflyCharges, isDifficultyEasy ? 5 : 3);
-    drawString(GLUT_BITMAP_HELVETICA_12, kingerHealText, left, top + 34.0f);
+    drawString(GLUT_BITMAP_HELVETICA_18, kingerHealText, left, top + 48.0f);
 
     // Background Container
     glColor4f(0.08f, 0.08f, 0.12f, 0.7f);
@@ -346,11 +349,11 @@ void drawHUD()
     // ==========================================
     // 2. Control Tips (Bottom Right Side of Viewport)
     // ==========================================
-    float tipsWidth = 200.0f;
-    float tipsHeight = 90.0f;
-    float tipsLeft = window.width - 30.0f - tipsWidth;
-    float tipsBottom = 30.0f;
-    float tipsRight = window.width - 30.0f;
+    float tipsWidth = 250.0f;
+    float tipsHeight = 110.0f;
+    float tipsLeft = window.width - 35.0f - tipsWidth;
+    float tipsBottom = 35.0f;
+    float tipsRight = window.width - 35.0f;
     float tipsTop = tipsBottom + tipsHeight;
 
     // Background
@@ -372,28 +375,32 @@ void drawHUD()
         glVertex2f(tipsLeft, tipsTop);
     glEnd();
 
-    float startY = tipsTop - 15.0f;
-    float spacing = 15.0f;
+    float startY = tipsTop - 16.0f;
+    float spacing = 16.0f;
 
     // W,A,S,D
-    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "WASD", tipsLeft + 12.0f, startY);
-    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "- Move Forward/Sides", tipsLeft + 60.0f, startY);
+    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "WASD", tipsLeft + 15.0f, startY);
+    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "- Move Forward/Sides", tipsLeft + 75.0f, startY);
 
     // Mouse1
-    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "Mouse1", tipsLeft + 12.0f, startY - spacing);
-    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "- Shoot Weapon", tipsLeft + 60.0f, startY - spacing);
+    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "Mouse1", tipsLeft + 15.0f, startY - spacing);
+    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "- Shoot Weapon", tipsLeft + 75.0f, startY - spacing);
 
     // Space
-    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "Space", tipsLeft + 12.0f, startY - 2.0f * spacing);
-    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "- Jump", tipsLeft + 60.0f, startY - 2.0f * spacing);
+    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "Space", tipsLeft + 15.0f, startY - 2.0f * spacing);
+    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "- Jump", tipsLeft + 75.0f, startY - 2.0f * spacing);
 
     // C
-    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "C", tipsLeft + 12.0f, startY - 3.0f * spacing);
-    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "- Dodge Roll", tipsLeft + 60.0f, startY - 3.0f * spacing);
+    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "C", tipsLeft + 15.0f, startY - 3.0f * spacing);
+    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "- Dodge Roll", tipsLeft + 75.0f, startY - 3.0f * spacing);
 
     // F
-    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "F", tipsLeft + 12.0f, startY - 4.0f * spacing);
-    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_10, "- Heal Skill", tipsLeft + 60.0f, startY - 4.0f * spacing);
+    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "F", tipsLeft + 15.0f, startY - 4.0f * spacing);
+    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "- Heal Skill", tipsLeft + 75.0f, startY - 4.0f * spacing);
+
+    // R
+    glColor4f(0.0f, 0.9f, 0.5f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "R", tipsLeft + 15.0f, startY - 5.0f * spacing);
+    glColor4f(0.9f, 0.9f, 0.9f, 1.0f); drawString(GLUT_BITMAP_HELVETICA_12, "- Reload Gun", tipsLeft + 75.0f, startY - 5.0f * spacing);
 
     if (isTestArena)
     {
