@@ -11,27 +11,81 @@ AudioManager::AudioManager()
 
 void AudioManager::playBackgroundMusic(const std::string& filePath)
 {
-    if (bgmPlaying)
-        return;
+    if (bgmPlaying) return;
 
-    BOOL success = PlaySound(
+    char fullPath[MAX_PATH];
+
+    DWORD result = GetFullPathName(
         filePath.c_str(),
-        NULL,
-        SND_FILENAME | SND_ASYNC | SND_LOOP
+        MAX_PATH,
+        fullPath,
+        NULL
     );
 
-    if (!success)
+    if (result == 0)
     {
-        std::cout << "Failed to play background music: "
-                  << filePath << std::endl;
+        std::cout << "Failed to convert BGM path: " << filePath << std::endl;
         return;
     }
 
+    DWORD fileAttribute = GetFileAttributes(fullPath);
+    if (fileAttribute == INVALID_FILE_ATTRIBUTES)
+    {
+        std::cout << "BGM file not found: " << fullPath << std::endl;
+        return;
+    }
+
+    mciSendString("close bgm", NULL, 0, NULL);
+
+    std::string openCommand = "open \"";
+    openCommand += fullPath;
+    openCommand += "\" type waveaudio alias bgm";
+
+    MCIERROR openResult = mciSendString(openCommand.c_str(), NULL, 0, NULL);
+
+    if (openResult != 0)
+    {
+        char errorText[256];
+        mciGetErrorString(openResult, errorText, sizeof(errorText));
+
+        std::cout << "Failed to open background music: " << fullPath << std::endl;
+        std::cout << "MCI Error: " << errorText << std::endl;
+        return;
+    }
+
+    MCIERROR playResult = mciSendString("play bgm repeat", NULL, 0, NULL);
+
+    if (playResult != 0)
+    {
+        char errorText[256];
+        mciGetErrorString(playResult, errorText, sizeof(errorText));
+
+        std::cout << "Failed to play background music: " << fullPath << std::endl;
+        std::cout << "MCI Error: " << errorText << std::endl;
+        return;
+    }
+
+    std::cout << "BGM playing: " << fullPath << std::endl;
     bgmPlaying = true;
 }
 
 void AudioManager::stopBackgroundMusic()
 {
-    PlaySound(NULL, NULL, 0);
+    mciSendString("stop bgm", NULL, 0, NULL);
+    mciSendString("close bgm", NULL, 0, NULL);
     bgmPlaying = false;
+}
+
+void AudioManager::playSoundEffect(const std::string& filePath)
+{
+    BOOL success = PlaySound(
+        filePath.c_str(),
+        NULL,
+        SND_FILENAME | SND_ASYNC
+    );
+
+    if (!success)
+    {
+        std::cout << "Failed to play sound effect: " << filePath << std::endl;
+    }
 }
